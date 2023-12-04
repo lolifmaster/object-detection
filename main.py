@@ -1,5 +1,3 @@
-import numpy as np
-
 import cv1.filters as filters
 from pathlib import Path
 import cv2
@@ -12,12 +10,13 @@ def main():
     image = cv2.imread(str(DATA_DIR / "ppp.png"), cv2.IMREAD_GRAYSCALE)
     if image is None:
         raise ValueError("Image not found")
-    # cv2 median filter
-    new_image_cv2 = cv2.medianBlur(image, 7)
-    # my median filter
-    new_image = filters.median(image, (20, 20))
+    # cv2 gaussian filter
+    new_image_cv2 = cv2.GaussianBlur(image, (9, 9), 1)
+    # my gaussian filter
+    new_image = filters.gaussian(image, (9, 9), 1)
 
-    cv2.imshow("Original", new_image)
+    cv2.imshow("original", image)
+    cv2.imshow("mine", new_image)
     cv2.imshow("cv", new_image_cv2)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
