@@ -1,7 +1,4 @@
 from typing import Sequence
-
-import cv2
-
 from cv1 import tools
 import numpy as np
 from cv1.tools import range
