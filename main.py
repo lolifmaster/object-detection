@@ -12,9 +12,11 @@ def main():
     image = cv2.imread(str(DATA_DIR / "ppp.png"), cv2.IMREAD_GRAYSCALE)
     if image is None:
         raise ValueError("Image not found")
+    # cv2 median filter
+    new_image_cv2 = cv2.medianBlur(image, 7)
+    # my median filter
+    new_image = filters.median(image, (20, 20))
 
-    new_image = filters.mean(image, (20, 20))
-    new_image_cv2 = cv2.blur(image, (20, 20))
     cv2.imshow("Original", new_image)
     cv2.imshow("cv", new_image_cv2)
     cv2.waitKey(0)
