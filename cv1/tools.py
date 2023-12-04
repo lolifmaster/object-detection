@@ -61,10 +61,8 @@ def filter_2d(src, kernel, mode='edge', constant_values=0):
     Returns:
         numpy.ndarray: The filtered image.
     """
-    if not isinstance(src, np.ndarray) or not isinstance(kernel, np.ndarray):
-        raise ValueError("src and kernel should be numpy arrays")
-    if len(src.shape) < 2 or len(kernel.shape) < 2:
-        raise ValueError("src and kernel should be 2D arrays")
+    if not is_gray_scale(src):
+        raise ValueError("src should be a gray scale image")
 
     dst = np.zeros_like(src)
     pad_width = ((kernel.shape[0] - 1) // 2, kernel.shape[0] // 2), ((kernel.shape[1] - 1) // 2, kernel.shape[1] // 2)
