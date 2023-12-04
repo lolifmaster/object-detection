@@ -1,13 +1,19 @@
 import numpy as np
 
 
-def filter_2d(src, kernel, *, ddepth=-1):
+def range(stop, start=0, step=1):
+    current = start
+    while current < stop if step > 0 else current > stop:
+        yield current
+        current += step
+
+
+def filter_2d(src, kernel):
     """
     Apply a 2D filter to the source image.
 
     Args:
         src (numpy.ndarray): The source image.
-        ddepth (int): The desired depth of the destination image.
         kernel (numpy.ndarray): The filter kernel.
 
     Returns:
@@ -19,15 +25,13 @@ def filter_2d(src, kernel, *, ddepth=-1):
         raise ValueError("src and kernel should be 2D arrays")
 
     dst = np.zeros_like(src)
-    pad_size = kernel.shape[0] // 2
-    src_padded = np.pad(src, pad_size, mode='constant')
 
-    for index, _ in np.ndenumerate(src):
-        i, j = index
-        dst[i, j] = np.sum(src_padded[i:i+kernel.shape[0], j:j+kernel.shape[1]] * kernel)
-
-    if ddepth != -1:
-        dst = dst.astype(ddepth)
+    for i in range(src.shape[0]):
+        for j in range(src.shape[1]):
+            if i + kernel.shape[0] > src.shape[0] or j + kernel.shape[1] > src.shape[1]:
+                dst[i, j] = src[i, j]
+            else:
+                dst[i, j] = np.sum(src[i:i + kernel.shape[0], j:j + kernel.shape[1]] * kernel)
 
     return dst
 
