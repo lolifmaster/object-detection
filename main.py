@@ -1,6 +1,7 @@
 import cv1.filters as filters
 from pathlib import Path
 import cv2
+import numpy as np
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -11,10 +12,8 @@ def main():
     if image is None:
         raise ValueError("Image not found")
 
-    # cv2 filter
-    new_image_cv2 = cv2.blur(image, (9, 9))
-    # my filter
-    new_image = filters.mean(image, (9, 9))
+    new_image = filters.laplacian(image)
+    new_image_cv2 = cv2.Laplacian(image, cv2.CV_64F)
 
     cv2.imshow("original", image)
     cv2.imshow("mine", new_image)

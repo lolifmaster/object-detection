@@ -48,6 +48,45 @@ def pad(src, pad_width, mode='constant', constant_values=0):
     return padded_src
 
 
+def sum_array(array: np.array):
+    """
+    Sum all the elements in the array.
+
+    Args:
+        array (numpy.ndarray): The array.
+
+    Returns:
+        float: The sum of all the elements in the array.
+    """
+    if not isinstance(array, np.ndarray):
+        raise ValueError("array should be a numpy array")
+
+    array_sum = 0
+    for i in range(array.shape[0]):
+        for j in range(array.shape[1]):
+            array_sum += array[i, j]
+
+    return array_sum
+
+
+def median(array: np.array):
+    """
+    Median all the elements in the array.
+
+    Args:
+        array (numpy.ndarray): The array.
+
+    Returns:
+        float: The median of all the elements in the array.
+    """
+    if not isinstance(array, np.ndarray):
+        raise ValueError("array should be a numpy array")
+
+    array = array.flatten()
+    array = sorted(array)
+    return array[len(array) // 2]
+
+
 def filter_2d(src, kernel, mode='edge', constant_values=0):
     """
     Apply a 2D filter to the source image.
@@ -65,7 +104,8 @@ def filter_2d(src, kernel, mode='edge', constant_values=0):
         raise ValueError("src should be a gray scale image")
 
     dst = np.zeros_like(src)
-    pad_width = ((kernel.shape[0] - 1) // 2, kernel.shape[0] // 2), ((kernel.shape[1] - 1) // 2, kernel.shape[1] // 2)
+    # pour garder les dimensions de l'image
+    pad_width = ((kernel.shape[0] // 2, kernel.shape[0] // 2), (kernel.shape[1] // 2, kernel.shape[1] // 2))
     padded_src = pad(src, pad_width, mode=mode, constant_values=constant_values)
 
     for i in range(src.shape[0]):
