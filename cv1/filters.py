@@ -24,13 +24,15 @@ def mean(src, kernel_size: Sequence[int]):
     return tools.filter_2d(src, kernel)
 
 
-def median(src, kernel_size: Sequence[int]):
+def median(src, kernel_size: Sequence[int], mode='edge', constant_values=0):
     """
     Apply median filter to the source image.
 
     Args:
         src (numpy.ndarray): The source image.
         kernel_size (Sequence[int]): The kernel size.
+        mode (str): The padding mode. Can be 'constant', 'edge'.
+        constant_values (int): The constant value to use if mode='constant'.
 
     Returns:
         numpy.ndarray: The filtered image.
@@ -42,7 +44,7 @@ def median(src, kernel_size: Sequence[int]):
 
     dst = np.zeros_like(src)
     pad_width = ((kernel_size[0] // 2, kernel_size[0] // 2), (kernel_size[1] // 2, kernel_size[1] // 2))
-    padded_src = tools.pad(src, pad_width, mode='edge')
+    padded_src = tools.pad(src, pad_width, mode, constant_values)
 
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
@@ -90,7 +92,7 @@ def laplacian(src):
         numpy.ndarray: The filtered image.
     """
     kernel = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]])
-    return tools.filter_2d(src, kernel)
+    return tools.filter_2d(src, kernel, clip=False)
 
 
 def edge_detection(src):
@@ -118,7 +120,8 @@ def sharpen(src):
         numpy.ndarray: The filtered image.
     """
     kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-    return tools.filter_2d(src, kernel)
+    sharpen_img = tools.filter_2d(src, kernel, mode='constant', constant_values=0)
+    return sharpen_img
 
 
 def emboss(src):

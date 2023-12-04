@@ -87,7 +87,29 @@ def median(array: np.array):
     return array[len(array) // 2]
 
 
-def filter_2d(src, kernel, mode='edge', constant_values=0):
+def clip_array(array, min_value, max_value):
+    """
+    Clip the value between min_value and max_value.
+
+    Args:
+        array (np.array): The array.
+        min_value (float): The minimum value.
+        max_value (float): The maximum value.
+
+    Returns:
+        float: The clipped value.
+    """
+    for i in range(array.shape[0]):
+        for j in range(array.shape[1]):
+            if array[i, j] < min_value:
+                array[i, j] = min_value
+            elif array[i, j] > max_value:
+                array[i, j] = max_value
+
+    return array
+
+
+def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
     """
     Apply a 2D filter to the source image.
 
@@ -96,6 +118,7 @@ def filter_2d(src, kernel, mode='edge', constant_values=0):
         kernel (numpy.ndarray): The filter kernel.
         mode (str): The padding mode. Can be 'constant', 'edge'.
         constant_values (int): The constant value to use if mode='constant'.
+        clip (bool): Whether to clip the output image to [0, 255].
 
     Returns:
         numpy.ndarray: The filtered image.
@@ -103,16 +126,28 @@ def filter_2d(src, kernel, mode='edge', constant_values=0):
     if not is_gray_scale(src):
         raise ValueError("src should be a gray scale image")
 
-    dst = np.zeros_like(src)
-    # pour garder les dimensions de l'image
-    pad_width = ((kernel.shape[0] // 2, kernel.shape[0] // 2), (kernel.shape[1] // 2, kernel.shape[1] // 2))
-    padded_src = pad(src, pad_width, mode=mode, constant_values=constant_values)
+    rows, cols = src.shape
+    k_rows, k_cols = kernel.shape
 
-    for i in range(src.shape[0]):
-        for j in range(src.shape[1]):
-            dst[i, j] = round(np.sum(padded_src[i:i + kernel.shape[0], j:j + kernel.shape[1]] * kernel))
+    # Calculate the padding needed to ensure the output size is the same as the input size
+    pad_rows = k_rows // 2
+    pad_cols = k_cols // 2
 
-    return dst
+    # Pad the image
+    padded_image = pad(src, ((pad_rows, pad_rows), (pad_cols, pad_cols)), mode, constant_values)
+
+    # Initialize the output image
+    output_image = np.zeros_like(src, dtype=np.float32)
+
+    # Convolution operation
+    for i in range(rows):
+        for j in range(cols):
+            output_image[i, j] = sum_array(padded_image[i:i + k_rows, j:j + k_cols] * kernel)
+
+    if clip:
+        output_image = clip_array(output_image, 0, 255)
+
+    return output_image.astype(np.uint8)
 
 
 def is_gray_scale(src):
