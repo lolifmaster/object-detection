@@ -25,13 +25,12 @@ def filter_2d(src, kernel):
         raise ValueError("src and kernel should be 2D arrays")
 
     dst = np.zeros_like(src)
+    pad_width = ((kernel.shape[0] - 1) // 2, kernel.shape[0] // 2), ((kernel.shape[1] - 1) // 2, kernel.shape[1] // 2)
+    padded_src = np.pad(src, pad_width, mode='constant')
 
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
-            if i + kernel.shape[0] > src.shape[0] or j + kernel.shape[1] > src.shape[1]:
-                dst[i, j] = src[i, j]
-            else:
-                dst[i, j] = np.sum(src[i:i + kernel.shape[0], j:j + kernel.shape[1]] * kernel)
+            dst[i, j] = np.sum(padded_src[i:i + kernel.shape[0], j:j + kernel.shape[1]] * kernel)
 
     return dst
 

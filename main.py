@@ -15,7 +15,6 @@ def main():
     new_image_cv2 = cv2.blur(image, (5, 5))
     cv2.imshow("Original", new_image)
     cv2.imshow("cv", new_image_cv2)
-    print(image.shape, new_image.shape, new_image_cv2.shape)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
