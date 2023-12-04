@@ -1,5 +1,3 @@
-import numpy as np
-
 import cv1.filters as filters
 from pathlib import Path
 import cv2
@@ -14,11 +12,9 @@ def main():
         raise ValueError("Image not found")
 
     # cv2 filter
-    new_image_cv2 = cv2.GaussianBlur(image, (9, 9), -5)
+    new_image_cv2 = cv2.blur(image, (9, 9))
     # my filter
-    new_image = filters.gaussian(image, (9, 9), -5)
-
-    print(np.array_equal(new_image, new_image_cv2))
+    new_image = filters.mean(image, (9, 9))
 
     cv2.imshow("original", image)
     cv2.imshow("mine", new_image)
