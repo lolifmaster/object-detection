@@ -1,3 +1,5 @@
+import numpy as np
+
 import cv1.filters as filters
 from pathlib import Path
 import cv2
@@ -11,8 +13,8 @@ def main():
     if image is None:
         raise ValueError("Image not found")
 
-    new_image = filters.mean(image, (5, 5))
-    new_image_cv2 = cv2.blur(image, (5, 5))
+    new_image = filters.mean(image, (20, 20))
+    new_image_cv2 = cv2.blur(image, (20, 20))
     cv2.imshow("Original", new_image)
     cv2.imshow("cv", new_image_cv2)
     cv2.waitKey(0)

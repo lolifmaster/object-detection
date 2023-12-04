@@ -26,11 +26,11 @@ def filter_2d(src, kernel):
 
     dst = np.zeros_like(src)
     pad_width = ((kernel.shape[0] - 1) // 2, kernel.shape[0] // 2), ((kernel.shape[1] - 1) // 2, kernel.shape[1] // 2)
-    padded_src = np.pad(src, pad_width, mode='constant')
+    padded_src = np.pad(src, pad_width, mode='edge')
 
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
-            dst[i, j] = np.sum(padded_src[i:i + kernel.shape[0], j:j + kernel.shape[1]] * kernel)
+            dst[i, j] = round(np.sum(padded_src[i:i + kernel.shape[0], j:j + kernel.shape[1]] * kernel))
 
     return dst
 
