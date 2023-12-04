@@ -68,7 +68,7 @@ def gaussian(src, kernel_size: Sequence[int], sigma: float):
     if len(kernel_size) != 2:
         raise ValueError("kernel_size should be an Sequence of length 2")
     if sigma <= 0:
-        raise ValueError("sigma should be greater than 0")
+        sigma = src.std()
 
     kernel = np.zeros(kernel_size)
     for i in range(kernel_size[0]):
