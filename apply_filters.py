@@ -7,14 +7,15 @@ if image is None:
     raise ValueError('Image not found')
 
 # try all the filters
-mean = filters.mean(image, (3, 3))
-median = filters.median(image, (3, 3))
-gaussian = filters.gaussian(image, (3, 3), 1)
+mean = filters.mean(image, (7, 7))
+median = filters.median(image, (7, 7))
+gaussian = filters.gaussian(image, (7, 7), 1)
 sharpen = filters.sharpen(image)
 laplacian = filters.laplacian(image)
 emboss = filters.emboss(image)
 
 # show the results
+cv2.imshow('original', image)
 cv2.imshow('mean', mean)
 cv2.imshow('median', median)
 cv2.imshow('gaussian', gaussian)

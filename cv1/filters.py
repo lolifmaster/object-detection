@@ -48,7 +48,7 @@ def median(src, kernel_size: Sequence[int], mode='edge', constant_values=0):
 
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
-            dst[i, j] = tools.median(padded_src[i:i + kernel_size[0], j:j + kernel_size[1]])
+            dst[i, j] = np.median(padded_src[i:i + kernel_size[0], j:j + kernel_size[1]])
 
     return dst
 

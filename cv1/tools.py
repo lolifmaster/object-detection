@@ -21,8 +21,8 @@ def pad(src, pad_width, mode='constant', constant_values=0):
     Returns:
         numpy.ndarray: The padded image.
     """
-    if not isinstance(src, np.ndarray):
-        raise ValueError("src should be a numpy array")
+    if not is_gray_scale(src):
+        return
 
     padded_src = np.zeros(
         (src.shape[0] + pad_width[0][0] + pad_width[0][1], src.shape[1] + pad_width[1][0] + pad_width[1][1]))
@@ -46,45 +46,6 @@ def pad(src, pad_width, mode='constant', constant_values=0):
         padded_src[-pad_width[0][1]:, -pad_width[1][1]:] = src[-1, -1]
 
     return padded_src
-
-
-def sum_array(array: np.array):
-    """
-    Sum all the elements in the array.
-
-    Args:
-        array (numpy.ndarray): The array.
-
-    Returns:
-        float: The sum of all the elements in the array.
-    """
-    if not isinstance(array, np.ndarray):
-        raise ValueError("array should be a numpy array")
-
-    array_sum = 0
-    for i in range(array.shape[0]):
-        for j in range(array.shape[1]):
-            array_sum += array[i, j]
-
-    return array_sum
-
-
-def median(array: np.array):
-    """
-    Median all the elements in the array.
-
-    Args:
-        array (numpy.ndarray): The array.
-
-    Returns:
-        float: The median of all the elements in the array.
-    """
-    if not isinstance(array, np.ndarray):
-        raise ValueError("array should be a numpy array")
-
-    array = array.flatten()
-    array = sorted(array)
-    return array[len(array) // 2]
 
 
 def clip_array(array, min_value, max_value):
@@ -142,7 +103,7 @@ def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
     # Convolution operation
     for i in range(rows):
         for j in range(cols):
-            output_image[i, j] = sum_array(padded_image[i:i + k_rows, j:j + k_cols] * kernel)
+            output_image[i, j] = np.sum(padded_image[i:i + k_rows, j:j + k_cols] * kernel)
 
     if clip:
         output_image = clip_array(output_image, 0, 255)
@@ -164,3 +125,53 @@ def is_gray_scale(src):
         raise ValueError("src should be a numpy array")
 
     return len(src.shape) == 2
+
+
+def bgr2hsv(src):
+    """
+    Convert a BGR image to HSV.
+
+    Args:
+        src (numpy.ndarray): The source image.
+
+    Returns:
+        numpy.ndarray: The HSV image.
+    """
+    if not isinstance(src, np.ndarray):
+        raise ValueError("src should be a numpy array")
+
+    if src.shape[2] != 3:
+        raise ValueError("src should be a BGR image")
+
+    hsv = np.zeros_like(src, dtype=np.float32)
+
+    # Extract the BGR channels and normalize
+    b, g, r = src[:, :, 0] / 255.0, src[:, :, 1] / 255.0, src[:, :, 2] / 255.0
+
+    # Calculate the value channel
+    v = np.max(src, axis=2) / 255.0
+    m = np.min(src, axis=2) / 255.0
+
+    # Calculate the saturation channel
+    s = np.zeros_like(v)
+    non_zero_v = v != 0
+    s[non_zero_v] = (v[non_zero_v] - m[non_zero_v]) / v[non_zero_v] * 255
+
+    # Calculate the hue channel
+    h = np.zeros_like(v)
+
+    h[v == r] = 60 * (g[v == r] - b[v == r]) / (v[v == r] - m[v == r])
+    h[v == g] = 120 + 60 * (b[v == g] - r[v == g]) / (v[v == g] - m[v == g])
+    h[v == b] = 240 + 60 * (r[v == b] - g[v == b]) / (v[v == b] - m[v == b])
+    h[v == 0] = 0
+
+    # Convert the hue channel to degrees
+    h[h < 0] += 360
+
+    # Normalize the hue channel
+    h = (h / 360.0) * 179.0
+
+    # Merge the channels
+    hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2] = h.astype(np.uint8), s.astype(np.uint8), np.max(src, axis=2).astype(np.uint8)
+
+    return hsv
