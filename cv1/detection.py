@@ -32,72 +32,8 @@ def in_range(image, lower_bound, upper_bound):
     return mask
 
 
-def find_contours(binary_image):
-    contours = []
+def bitwise_and(src: np.array, mask):
+    result = np.zeros_like(src)
+    result[mask == 255] = src[mask == 255]
 
-    # Find all white pixels in the binary image
-    white_pixels = np.column_stack(np.where(binary_image > 0))
-
-    # Iterate over each white pixel
-
-    for y, x in white_pixels:
-        # Check if the pixel has already been visited
-        if binary_image[y, x] == 0:
-            continue
-
-        # Initialize a contour
-        contour = []
-
-        # Add the current pixel to the contour
-        contour.append((y, x))
-
-        # Mark the current pixel as visited
-        binary_image[y, x] = 0
-
-        # Initialize the current direction
-        direction = 0
-
-        # Iterate over the 7 possible directions
-        for i in range(7):
-            # Compute the next direction
-            direction = (direction + 1) % 8
-
-            # Compute the coordinates of the next pixel
-            if direction == 0:
-                next_y, next_x = y - 1, x
-            elif direction == 1:
-                next_y, next_x = y - 1, x + 1
-            elif direction == 2:
-                next_y, next_x = y, x + 1
-            elif direction == 3:
-                next_y, next_x = y + 1, x + 1
-            elif direction == 4:
-                next_y, next_x = y + 1, x
-            elif direction == 5:
-                next_y, next_x = y + 1, x - 1
-            elif direction == 6:
-                next_y, next_x = y, x - 1
-            elif direction == 7:
-                next_y, next_x = y - 1, x - 1
-
-            # Check if the next pixel is within the image
-            if next_y < 0 or next_y >= binary_image.shape[0] or \
-               next_x < 0 or next_x >= binary_image.shape[1]:
-                continue
-
-            # Check if the next pixel is white
-            if binary_image[next_y, next_x] > 0:
-                # Add the next pixel to the contour
-                contour.append((next_y, next_x))
-
-                # Mark the next pixel as visited
-                binary_image[next_y, next_x] = 0
-
-                # Break the loop
-                break
-
-        # Check if the contour is valid
-        if len(contour) > 2:
-            contours.append(contour)
-
-    return contours
+    return result

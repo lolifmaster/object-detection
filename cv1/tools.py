@@ -142,8 +142,9 @@ def bgr2hsv(src):
 
     if src.shape[2] != 3:
         raise ValueError("src should be a BGR image")
+    np.seterr(divide='ignore', invalid='ignore')
 
-    hsv = np.zeros_like(src, dtype=np.float32)
+    hsv = np.zeros_like(src)
 
     # Extract the BGR channels and normalize
     b, g, r = src[:, :, 0] / 255.0, src[:, :, 1] / 255.0, src[:, :, 2] / 255.0
@@ -160,9 +161,11 @@ def bgr2hsv(src):
     # Calculate the hue channel
     h = np.zeros_like(v)
 
-    h[v == r] = 60 * (g[v == r] - b[v == r]) / (v[v == r] - m[v == r])
-    h[v == g] = 120 + 60 * (b[v == g] - r[v == g]) / (v[v == g] - m[v == g])
-    h[v == b] = 240 + 60 * (r[v == b] - g[v == b]) / (v[v == b] - m[v == b])
+    delta = (v - m)
+
+    h[v == r] = 60 * (g[v == r] - b[v == r]) / (delta[v == r])
+    h[v == g] = 120 + 60 * (b[v == g] - r[v == g]) / (delta[v == g])
+    h[v == b] = 240 + 60 * (r[v == b] - g[v == b]) / (delta[v == b])
     h[v == 0] = 0
 
     # Convert the hue channel to degrees
@@ -170,8 +173,7 @@ def bgr2hsv(src):
 
     # Normalize the hue channel
     h = (h / 360.0) * 179.0
-
     # Merge the channels
-    hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2] = h.astype(np.uint8), s.astype(np.uint8), np.max(src, axis=2).astype(np.uint8)
+    hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2] = h, s, np.max(src, axis=2)
 
     return hsv
