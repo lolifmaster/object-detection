@@ -1,5 +1,9 @@
 from cv1.tools import range
 import numpy as np
+import time
+
+
+
 
 
 def in_range(image, lower_bound, upper_bound):
@@ -17,7 +21,13 @@ def in_range(image, lower_bound, upper_bound):
     lower_bound_b, lower_bound_g, lower_bound_r = lower_bound
     upper_bound_b, upper_bound_g, upper_bound_r = upper_bound
 
-    # Iterate over each pixel in the image
+    time_start = time.time()
+
+    lower_x = width
+    lower_y = height
+    upper_x = 0
+    upper_y = 0
+
     for y in range(height):
         for x in range(width):
             # Extract the BGR values for the current pixel
@@ -27,9 +37,21 @@ def in_range(image, lower_bound, upper_bound):
             if lower_bound_b <= b <= upper_bound_b and \
                lower_bound_g <= g <= upper_bound_g and \
                lower_bound_r <= r <= upper_bound_r:
-                mask[y, x] = 255  # Set to 255 if within range
+                mask[y, x] = 255  # Set to 255 if within rangez
 
-    return mask
+                #find the upper and lower coordinates of the colored area
+                lower_x = lower_x if lower_x < x else x
+                lower_y = lower_y if lower_y < y else y
+                upper_x = upper_x if upper_x > x else x
+                upper_y = upper_y if upper_y > y else y
+
+        
+    time_end = time.time()
+    print('in_range took {} seconds'.format(time_end - time_start))
+    
+
+
+    return mask, (upper_x,upper_y,lower_x,lower_y)
 
 
 def bitwise_and(src: np.array, mask):
@@ -39,20 +61,25 @@ def bitwise_and(src: np.array, mask):
     return result
 
 
-def find_contours(image):
-    """
-    Find contours in an image.
-    :param image:
-    :return:
-    """
-    pass
+def draw_contours(image, contours):
 
+    """color the rectangle around the detected contour """
+    
+    start_time = time.time()
 
-def draw_contours(src, contours):
-    """
-    Draw contours on an image.
-    :param src:
-    :param contours:
-    :return:
-    """
-    pass
+    upper_x_contour, upper_y_contour, lower_x_contour, lower_y_contour = contours
+
+    #color the upper and lower rows
+    for x in range(upper_x_contour, lower_x_contour):
+        image[upper_y_contour, x] = [0, 255, 0]
+        image[lower_y_contour, x] = [0, 255, 0]
+    
+    #color the left and right columns
+    for y in range(upper_y_contour, lower_y_contour):
+        image[y, upper_x_contour] = [0, 255, 0]
+        image[y, lower_x_contour] = [0, 255, 0]
+
+    end_time = time.time()
+    print('rectangle took {} seconds'.format(end_time - start_time))
+
+    return image
