@@ -1,6 +1,6 @@
 import cv2
 import cv1.filters as filters
-from cv1 import Shape
+from cv1 import Shape, tools
 
 image = cv2.imread('data/ppp.png', cv2.IMREAD_GRAYSCALE)
 
@@ -15,8 +15,7 @@ if image is None:
 # emboss = filters.emboss(image)
 # bilateral = filters.bilateral(image, (7, 7), 75, 75)
 # cv2_bilateral = cv2.bilateralFilter(image, 7, 75, 75)
-black_image = image.copy()
-cv2.threshold(image, 127, 255, 0, black_image)
+black_image = tools.threshold(image, 127, 255)
 
 kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (5, 5))
 erode = filters.erode(black_image, 5, iterations=5, kernel_shape=Shape.CROSS)

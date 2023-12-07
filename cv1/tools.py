@@ -263,3 +263,30 @@ def in_range(src: np.array, lower_bound, upper_bound):
                 mask[i, j] = 255
 
     return mask
+
+
+def threshold(src: np.array, threshold_value: int, max_value: int):
+    """
+    Apply thresholding to the source image.
+
+    Args:
+        src (numpy.ndarray): The source image.
+        threshold_value (int): The threshold value.
+        max_value (int): The maximum value.
+
+    Returns:
+        numpy.ndarray: The threshold image.
+    """
+    if not isinstance(src, np.ndarray):
+        raise ValueError("src should be a numpy array")
+
+    if len(src.shape) != 2:
+        raise ValueError("src should be a 2D array")
+
+    dst = np.zeros_like(src, dtype=np.uint8)
+
+    for i in range(src.shape[0]):
+        for j in range(src.shape[1]):
+            dst[i, j] = max_value if src[i, j] > threshold_value else 0
+
+    return dst

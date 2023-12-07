@@ -25,15 +25,13 @@ def mean(src, kernel_size: Sequence[int]):
     return tools.filter_2d(src, kernel)
 
 
-def median(src, kernel_size: Sequence[int], mode='edge', constant_values=0):
+def median(src, kernel_size: Sequence[int]):
     """
     Apply median filter to the source image.
 
     Args:
         src (numpy.ndarray): The source image.
         kernel_size (Sequence[int]): The kernel size.
-        mode (str): The padding mode. Can be 'constant', 'edge'.
-        constant_values (int): The constant value to use if mode='constant'.
 
     Returns:
         numpy.ndarray: The filtered image.
@@ -44,12 +42,9 @@ def median(src, kernel_size: Sequence[int], mode='edge', constant_values=0):
     if len(kernel_size) != 2:
         raise ValueError("kernel_size should be an Sequence of length 2")
 
-    if mode not in ['constant', 'edge']:
-        raise ValueError("mode should be 'constant' or 'edge'")
-
     dst = np.zeros_like(src)
     pad_width = ((kernel_size[0] // 2, kernel_size[0] // 2), (kernel_size[1] // 2, kernel_size[1] // 2))
-    padded_src = tools.pad(src, pad_width, mode, constant_values)
+    padded_src = tools.pad(src, pad_width, 'edge')
 
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
