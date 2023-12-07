@@ -61,7 +61,7 @@ def bitwise_and(src: np.array, mask):
     return result
 
 
-def draw_contours(image, contours):
+def draw_contours(image, contours, color = (0, 255, 0)):
 
     """color the rectangle around the detected contour """
     
@@ -71,13 +71,13 @@ def draw_contours(image, contours):
 
     #color the upper and lower rows
     for x in range(upper_x_contour, lower_x_contour):
-        image[upper_y_contour, x] = [0, 255, 0]
-        image[lower_y_contour, x] = [0, 255, 0]
+        image[upper_y_contour, x] = color
+        image[lower_y_contour, x] = color
     
     #color the left and right columns
     for y in range(upper_y_contour, lower_y_contour):
-        image[y, upper_x_contour] = [0, 255, 0]
-        image[y, lower_x_contour] = [0, 255, 0]
+        image[y, upper_x_contour] = color
+        image[y, lower_x_contour] = color
 
     end_time = time.time()
     print('rectangle took {} seconds'.format(end_time - start_time))

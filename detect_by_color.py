@@ -21,7 +21,7 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     original = detection.bitwise_and(image, mask=color_mask)
 
     # Draw a rectangle around the detected object
-    final= detection.draw_contours(original,contous)
+    final= detection.draw_contours(original,contous, color=(0 , 0, 255))
 
 
 
