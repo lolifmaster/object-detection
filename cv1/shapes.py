@@ -7,4 +7,3 @@ class Shape(Enum):
     TRIANGLE = 3
     CROSS = 4
     DIAMOND = 5
-    STAR = 6

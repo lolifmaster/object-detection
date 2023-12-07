@@ -37,8 +37,14 @@ def median(src, kernel_size: Sequence[int], mode='edge', constant_values=0):
     Returns:
         numpy.ndarray: The filtered image.
     """
-    if not tools.is_gray_scale(mode):
-        return
+    if not isinstance(kernel_size, Sequence):
+        raise ValueError("kernel_size should be an Sequence")
+
+    if len(kernel_size) != 2:
+        raise ValueError("kernel_size should be an Sequence of length 2")
+
+    if mode not in ['constant', 'edge']:
+        raise ValueError("mode should be 'constant' or 'edge'")
 
     dst = np.zeros_like(src)
     pad_width = ((kernel_size[0] // 2, kernel_size[0] // 2), (kernel_size[1] // 2, kernel_size[1] // 2))
@@ -163,8 +169,14 @@ def bilateral(src, kernel_size: Sequence[int], sigma_s: float, sigma_r: float):
     Returns:
         numpy.ndarray: The filtered image.
     """
-    if not tools.is_gray_scale(src):
-        return
+    if not isinstance(kernel_size, Sequence):
+        raise ValueError("kernel_size should be an Sequence")
+    if len(kernel_size) != 2:
+        raise ValueError("kernel_size should be an Sequence of length 2")
+    if not isinstance(src, np.ndarray):
+        raise ValueError("src should be a numpy array")
+    if len(src.shape) != 2:
+        raise ValueError("src should be a 2D array")
 
     if sigma_s <= 0:
         sigma_s = src.std()
@@ -212,13 +224,15 @@ def erode(src, kernel_size: Sequence[int], *, iterations: int = 1):
 
     return dst
 
-def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1 ):
+
+def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1):
     """
-    Apply dillatatation to the source image.
+    Apply dilatation to the source image.
 
     Args:
         src (numpy.ndarray): The source image.
         kernel_size (Sequence[int]): The kernel size.
+        iterations (int): The number of iterations.
 
     Raises:
         numpy.ndarray: The filtered image.
@@ -230,7 +244,7 @@ def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1 ):
 
     dst = np.zeros_like(src)
     pad_width = ((kernel_size[0] - 1) // 2, kernel_size[0] // 2), ((kernel_size[1] - 1) // 2, kernel_size[1] // 2)
-    temp_img= src
+    temp_img = src
 
     for _ in range(iterations):
         padded_dst = tools.pad(temp_img, pad_width, mode='edge')

@@ -1,5 +1,6 @@
 import numpy as np
 from cv1.shapes import Shape
+from typing import Sequence
 
 
 def range(stop, start=0, step=1):
@@ -22,8 +23,20 @@ def pad(src, pad_width, mode='constant', constant_values=0):
     Returns:
         numpy.ndarray: The padded image.
     """
-    if not is_gray_scale(src):
-        return
+    if not isinstance(pad_width, Sequence):
+        raise ValueError("pad_width should be an Sequence")
+
+    if len(pad_width) != 2:
+        raise ValueError("pad_width should be an Sequence of length 2")
+
+    if mode not in ['constant', 'edge']:
+        raise ValueError("mode should be 'constant' or 'edge'")
+
+    if not isinstance(src, np.ndarray):
+        raise ValueError("src should be a numpy array")
+
+    if len(src.shape) != 2:
+        raise ValueError("src should be a 2D array")
 
     padded_src = np.zeros(
         (src.shape[0] + pad_width[0][0] + pad_width[0][1], src.shape[1] + pad_width[1][0] + pad_width[1][1]))
@@ -85,8 +98,17 @@ def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
     Returns:
         numpy.ndarray: The filtered image.
     """
-    if not is_gray_scale(src):
-        raise ValueError("src should be a gray scale image")
+    if not isinstance(kernel, np.ndarray):
+        raise ValueError("kernel should be a numpy array")
+
+    if not isinstance(src, np.ndarray):
+        raise ValueError("src should be a numpy array")
+
+    if len(kernel.shape) != 2:
+        raise ValueError("kernel should be a 2D array")
+
+    if len(src.shape) != 2:
+        raise ValueError("src should be a 2D array")
 
     rows, cols = src.shape
     k_rows, k_cols = kernel.shape
@@ -110,22 +132,6 @@ def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
         output_image = clip_array(output_image, 0, 255)
 
     return output_image.astype(np.uint8)
-
-
-def is_gray_scale(src):
-    """
-    Check if the source image is gray scale.
-
-    Args:
-        src (numpy.ndarray): The source image.
-
-    Returns:
-        bool: True if the image is gray scale, False otherwise.
-    """
-    if not isinstance(src, np.ndarray):
-        raise ValueError("src should be a numpy array")
-
-    return len(src.shape) == 2
 
 
 def bgr2hsv(src):
@@ -204,10 +210,6 @@ def create_shape(shape_type: Shape, size: int):
             return np.array([[1 if i >= j else 0 for j in range(size)] for i in range(size)])
         case Shape.DIAMOND:
             return np.array([[1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 else 0
-                              for j in range(size)] for i in range(size)])
-        case Shape.STAR:
-            return np.array([[1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 or
-                                   (i - size // 2) ** 2 + (j - size // 2) ** 2 <= (size // 2) ** 2 else 0
                               for j in range(size)] for i in range(size)])
         case _:
             raise ValueError("Invalid shape type")
