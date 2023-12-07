@@ -37,10 +37,8 @@ def median(src, kernel_size: Sequence[int], mode='edge', constant_values=0):
     Returns:
         numpy.ndarray: The filtered image.
     """
-    if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
-    if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
+    if not tools.is_gray_scale(mode):
+        return
 
     dst = np.zeros_like(src)
     pad_width = ((kernel_size[0] // 2, kernel_size[0] // 2), (kernel_size[1] // 2, kernel_size[1] // 2))
@@ -65,10 +63,6 @@ def gaussian(src, kernel_size: Sequence[int], sigma: float):
     Returns:
         numpy.ndarray: The filtered image.
     """
-    if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
-    if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
     if sigma <= 0:
         sigma = src.std()
 
@@ -150,3 +144,42 @@ def emboss(src):
         for j in range(src.shape[1]):
             combined[i, j] = max(left[i, j], right[i, j])
     return combined
+
+
+def bilateral(src, kernel_size: Sequence[int], sigma_s: float, sigma_r: float):
+    """
+    Apply bilateral filter to the source image.
+
+    Args:
+        src (numpy.ndarray): The source image.
+        kernel_size (Sequence[int]): The kernel size.
+        sigma_s (float): The standard deviation of the spatial gaussian distribution.
+        sigma_r (float): The standard deviation of the range gaussian distribution.
+
+    Returns:
+        numpy.ndarray: The filtered image.
+    """
+    if not tools.is_gray_scale(src):
+        return
+
+    if sigma_s <= 0:
+        sigma_s = src.std()
+    if sigma_r <= 0:
+        sigma_r = src.std()
+
+    dst = np.zeros_like(src)
+    pad_width = ((kernel_size[0] // 2, kernel_size[0] // 2), (kernel_size[1] // 2, kernel_size[1] // 2))
+    padded_src = tools.pad(src, pad_width, 'edge')
+
+    for i in range(src.shape[0]):
+        for j in range(src.shape[1]):
+            kernel = np.zeros(kernel_size)
+            for k in range(kernel_size[0]):
+                for l in range(kernel_size[1]):
+                    kernel[k, l] = np.exp(-((k - kernel_size[0] // 2) ** 2 + (l - kernel_size[1] // 2) ** 2) / (
+                            2 * sigma_s ** 2)) * np.exp(
+                        -((padded_src[i, j] - padded_src[i + k, j + l]) ** 2) / (2 * sigma_r ** 2))
+            kernel /= np.sum(kernel)
+            dst[i, j] = np.sum(kernel * padded_src[i:i + kernel_size[0], j:j + kernel_size[1]])
+
+    return dst
