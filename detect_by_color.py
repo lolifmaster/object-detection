@@ -15,20 +15,19 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     upper_bound = np.array(target_color_upper)
 
     # Create a binary mask where pixels within the color range are white and others are black
-    color_mask = detection.in_range(hsv_image, lower_bound, upper_bound)
+    color_mask,contous = detection.in_range(hsv_image, lower_bound, upper_bound)
 
-    contours = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     original = detection.bitwise_and(image, mask=color_mask)
 
-    # Draw a bounding box around each detected contour
-    for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(original, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    # Draw a rectangle around the detected object
+    final= detection.draw_contours(original,contous, color=(0 , 0, 255))
+
+
 
     # Display the original image and the result
     cv2.imshow("Original Image", image)
-    cv2.imshow("Detected Objects", original)
+    cv2.imshow("Detected Objects", final)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
