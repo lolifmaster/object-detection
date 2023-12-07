@@ -63,6 +63,10 @@ def gaussian(src, kernel_size: Sequence[int], sigma: float):
     Returns:
         numpy.ndarray: The filtered image.
     """
+    if not isinstance(kernel_size, Sequence):
+        raise ValueError("kernel_size should be an Sequence")
+    if len(kernel_size) != 2:
+        raise ValueError("kernel_size should be an Sequence of length 2")
     if sigma <= 0:
         sigma = src.std()
 
@@ -181,5 +185,59 @@ def bilateral(src, kernel_size: Sequence[int], sigma_s: float, sigma_r: float):
                         -((padded_src[i, j] - padded_src[i + k, j + l]) ** 2) / (2 * sigma_r ** 2))
             kernel /= np.sum(kernel)
             dst[i, j] = np.sum(kernel * padded_src[i:i + kernel_size[0], j:j + kernel_size[1]])
+
+    return dst
+
+
+def erode(src, kernel_size: Sequence[int], *, iterations: int = 1):
+    if not isinstance(kernel_size, Sequence):
+        raise ValueError("kernel_size should be an Sequence")
+    if len(kernel_size) != 2:
+        raise ValueError("kernel_size should be an Sequence of length 2")
+
+    dst = np.zeros_like(src)
+    pad_height = (kernel_size[0] - 1) // 2
+    pad_width = (kernel_size[1] - 1) // 2
+    temp_img = np.copy(src)
+
+    for _ in range(iterations):
+
+        padded_dst = tools.pad(temp_img, ((pad_height, pad_height), (pad_width, pad_width)), mode='edge')
+
+        for i in range(temp_img.shape[0]):
+            for j in range(temp_img.shape[1]):
+                dst[i, j] = np.min(padded_dst[i:i + kernel_size[0], j:j + kernel_size[1]])
+
+        np.copyto(temp_img, dst)
+
+    return dst
+
+def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1 ):
+    """
+    Apply dillatatation to the source image.
+
+    Args:
+        src (numpy.ndarray): The source image.
+        kernel_size (Sequence[int]): The kernel size.
+
+    Raises:
+        numpy.ndarray: The filtered image.
+    """
+    if not isinstance(kernel_size, Sequence):
+        raise ValueError("kernel_size should be an Sequence")
+    if len(kernel_size) != 2:
+        raise ValueError("kernel_size should be an Sequence of length 2")
+
+    dst = np.zeros_like(src)
+    pad_width = ((kernel_size[0] - 1) // 2, kernel_size[0] // 2), ((kernel_size[1] - 1) // 2, kernel_size[1] // 2)
+    temp_img= src
+
+    for _ in range(iterations):
+        padded_dst = tools.pad(temp_img, pad_width, mode='edge')
+        for i in range(temp_img.shape[0]):
+            for j in range(temp_img.shape[1]):
+                dst[i, j] = np.max(padded_dst[i:i + kernel_size[0], j:j + kernel_size[1]])
+
+        temp_img = dst
 
     return dst
