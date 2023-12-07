@@ -18,8 +18,8 @@ obstacle_speed = 8
 obstacles = []
 
 # bounds 
-lower_bound = np.array([0, 120, 120])
-upper_bound = np.array([5, 255, 255])
+lower_bound = np.array([90, 20, 90])
+upper_bound = np.array([101, 38, 95])
 
 
 # Function to draw the car
@@ -78,7 +78,7 @@ while True:
 
     hsv_frame = tools.bgr2hsv(frame)
 
-    color_mask, contours = tools.in_range_detect(hsv_frame, lower_bound, upper_bound)
+    color_mask, contours = detection.in_range_detect(hsv_frame, lower_bound, upper_bound)
 
     original = tools.bitwise_and(frame, mask=color_mask)
     final = detection.draw_contours(original, contours, color=(255, 0, 0))

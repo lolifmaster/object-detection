@@ -216,48 +216,50 @@ def create_shape(shape_type: Shape, size: int):
             raise ValueError("Invalid shape type")
 
 
-def in_range_detect(image, lower_bound, upper_bound):
-    # Ensure the image is in the correct format (e.g., RGB or BGR)
-    if len(image.shape) == 2:
-        raise ValueError("Input image must be in color (e.g., RGB or BGR)")
-
-    # Get the height and width of the image
-    height, width, _ = image.shape
-
-    # Initialize an output mask with zeros
-    mask = np.zeros((height, width), dtype=np.uint8)
-
-    # Extract lower and upper bounds for each channel
-    lower_bound_b, lower_bound_g, lower_bound_r = lower_bound
-    upper_bound_b, upper_bound_g, upper_bound_r = upper_bound
-
-    lower_x = width
-    lower_y = height
-    upper_x = 0
-    upper_y = 0
-
-    for y in range(height):
-        for x in range(width):
-            # Extract the BGR values for the current pixel
-            b, g, r = image[y, x]
-
-            # Check if the pixel values are within the specified range for each channel
-            if lower_bound_b <= b <= upper_bound_b and \
-                    lower_bound_g <= g <= upper_bound_g and \
-                    lower_bound_r <= r <= upper_bound_r:
-                mask[y, x] = 255  # Set to 255 if within range
-
-                # find the upper and lower coordinates of the colored area
-                lower_x = lower_x if lower_x < x else x
-                lower_y = lower_y if lower_y < y else y
-                upper_x = upper_x if upper_x > x else x
-                upper_y = upper_y if upper_y > y else y
-
-    return mask, (upper_x, upper_y, lower_x, lower_y)
-
-
 def bitwise_and(src: np.array, mask):
     result = np.zeros_like(src)
     result[mask == 255] = src[mask == 255]
 
     return result
+
+
+def in_range(src: np.array, lower_bound, upper_bound):
+    """
+    Check if the pixels in the source image are within the specified range.
+
+    Args:
+        src (numpy.ndarray): The source image.
+        lower_bound (Sequence[int]): The lower bound.
+        upper_bound (Sequence[int]): The upper bound.
+
+    Returns:
+        numpy.ndarray: The mask.
+    """
+    if not isinstance(src, np.ndarray):
+        raise ValueError("src should be a numpy array")
+
+    if len(src.shape) != 3:
+        raise ValueError("src should be a 3D array")
+
+    if len(lower_bound) != 3:
+        raise ValueError("lower_bound should be a Sequence of length 3")
+
+    if len(upper_bound) != 3:
+        raise ValueError("upper_bound should be a Sequence of length 3")
+
+    if not isinstance(lower_bound, Sequence):
+        raise ValueError("lower_bound should be a Sequence")
+
+    if not isinstance(upper_bound, Sequence):
+        raise ValueError("upper_bound should be a Sequence")
+
+    mask = np.zeros((src.shape[0], src.shape[1]), dtype=np.uint8)
+
+    for i in range(src.shape[0]):
+        for j in range(src.shape[1]):
+            if lower_bound[0] <= src[i, j, 0] <= upper_bound[0] and \
+                    lower_bound[1] <= src[i, j, 1] <= upper_bound[1] and \
+                    lower_bound[2] <= src[i, j, 2] <= upper_bound[2]:
+                mask[i, j] = 255
+
+    return mask
