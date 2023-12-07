@@ -33,9 +33,20 @@ def calculate_center(contours):
 
 
 def in_range_detect(image, lower_bound, upper_bound):
-    # Ensure the image is in the correct format (e.g., RGB or BGR)
+    """
+     performs a color detection in the specified range and returns a mask
+     and the upper and lower coordinates of the detected object
+
+
+        :param image: the image to be processed
+        :param lower_bound: the lower bound for the color detection
+        :param upper_bound: the upper bound for the color detection
+
+        :return: a mask with the detected object and the upper and lower coordinates of the detected object
+
+    """
     if len(image.shape) == 2:
-        raise ValueError("Input image must be in color (e.g., RGB or BGR)")
+        raise ValueError("Input image must be in HSV format (3 dimensions)")
 
     # Get the height and width of the image
     height, width, _ = image.shape
@@ -54,7 +65,7 @@ def in_range_detect(image, lower_bound, upper_bound):
 
     for y in range(height):
         for x in range(width):
-            # Extract the BGR values for the current pixel
+            # Extract the HSV values for the current pixel
             h, s, v = image[y, x]
 
             # Check if the pixel values are within the specified range for each channel
@@ -68,5 +79,9 @@ def in_range_detect(image, lower_bound, upper_bound):
                 lower_y = lower_y if lower_y < y else y
                 upper_x = upper_x if upper_x > x else x
                 upper_y = upper_y if upper_y > y else y
+
+    # check if coordinates were found
+    if lower_x == width or lower_y == height or upper_x == 0 or upper_y == 0:
+        return mask, None
 
     return mask, (upper_x, upper_y, lower_x, lower_y)
