@@ -20,15 +20,19 @@ class FilterInputDialog(QDialog):
         self.error_labels = {}
 
         for argument_name in self.arguments:
-            input_widget = QLineEdit(self)
+            if argument_name == "kernel_shape":
+                input_widget = QComboBox(self)
+                input_widget.addItems(['rect', 'cross'])
+            else:
+                input_widget = QLineEdit(self)
             error_label = QLabel(self)
             error_label.setStyleSheet("color: red; font-size: 10px;")
-            self.layout.addRow(argument_name, input_widget)
+            self.layout.addRow(f"{argument_name.capitalize()}: ", input_widget)
             self.layout.addRow("", error_label)
             self.input_widgets[argument_name] = input_widget
             self.error_labels[argument_name] = error_label
 
-        self.submit_button = QPushButton('Submit', self)
+        self.submit_button = QPushButton('Apply Filter', self)
         self.submit_button.clicked.connect(self.validate_and_accept)
         self.layout.addRow(self.submit_button)
 
@@ -39,7 +43,10 @@ class FilterInputDialog(QDialog):
     def validate_inputs(self):
         for argument_name, input_widget in self.input_widgets.items():
             error_label = self.error_labels[argument_name]
-            if input_widget.text().strip() == "":
+            if argument_name == "kernel_shape":
+                # No need to check for emptiness in a combo box
+                error_label.clear()
+            elif input_widget.text().strip() == "":
                 error_label.setText("This field is required")
                 return False
             else:
@@ -49,13 +56,13 @@ class FilterInputDialog(QDialog):
     def get_argument_values(self):
         argument_values = {}
         for argument_name, input_widget in self.input_widgets.items():
-            try:
-                if argument_name == "kernel_shape":
-                    argument_values[argument_name] = Shape(input_widget.text())
-                else:
+            if argument_name == "kernel_shape":
+                argument_values[argument_name] = Shape(self.input_widgets[argument_name].currentText())
+            else:
+                try:
                     argument_values[argument_name] = ast.literal_eval(input_widget.text())
-            except (SyntaxError, ValueError):
-                argument_values[argument_name] = input_widget.text()
+                except (SyntaxError, ValueError):
+                    argument_values[argument_name] = input_widget.text()
         return argument_values
 
 

@@ -17,7 +17,7 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     upper_bound = np.array(target_color_upper)
 
     # Create a binary mask where pixels within the color range are white and others are black
-    color_mask, contour = tools.in_range_detect(hsv_image, lower_bound, upper_bound)
+    color_mask, contour = detection.in_range_detect(hsv_image, lower_bound, upper_bound)
 
     original = tools.bitwise_and(image, mask=color_mask)
 
