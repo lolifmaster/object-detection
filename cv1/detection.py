@@ -58,11 +58,7 @@ def in_range_detect(image, lower_bound, upper_bound):
     lower_bound_b, lower_bound_g, lower_bound_r = lower_bound
     upper_bound_b, upper_bound_g, upper_bound_r = upper_bound
 
-    lower_x = width
-    lower_y = height
-    upper_x = 0
-    upper_y = 0
-
+    points = []
     for y in range(height):
         for x in range(width):
             # Extract the HSV values for the current pixel
@@ -74,14 +70,17 @@ def in_range_detect(image, lower_bound, upper_bound):
                     lower_bound_r <= v <= upper_bound_r:
                 mask[y, x] = 255  # Set to 255 if within range
 
-                # find the upper and lower coordinates of the colored area
-                lower_x = lower_x if lower_x < x else x
-                lower_y = lower_y if lower_y < y else y
-                upper_x = upper_x if upper_x > x else x
-                upper_y = upper_y if upper_y > y else y
+                # add the coordinates to the list of points
+                points.append((x, y))
 
-    # check if coordinates were found
-    if lower_x == width or lower_y == height or upper_x == 0 or upper_y == 0:
-        return mask, None
+    # get the upper and lower coordinates
+    if points:
+        lower_x = min(points, key=lambda p: p[0])[0]
+        lower_y = min(points, key=lambda p: p[1])[1]
+        upper_x = max(points, key=lambda p: p[0])[0]
+        upper_y = max(points, key=lambda p: p[1])[1]
+        cords = (upper_x, upper_y, lower_x, lower_y)
+    else:
+        cords = None
 
-    return mask, (upper_x, upper_y, lower_x, lower_y)
+    return mask, cords

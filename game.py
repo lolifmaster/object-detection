@@ -19,6 +19,7 @@ class CarDodgingGame:
     :param lower_bound: the lower bound for the color detection
     :param upper_bound: the upper bound for the color detection
     :param step: the step for moving the car
+
     """
     def __init__(self, width=400, height=600, car_width=50, car_height=30, obstacle_width=30, obstacle_height=30,
                  obstacle_speed=8, lower_bound=np.array([90, 20, 90]), upper_bound=np.array([101, 38, 95]), step: int = 10):
@@ -70,11 +71,8 @@ class CarDodgingGame:
     def handle_key_input(self, key):
         # Adjust the car's position based on the key input
         if key & 0xFF == ord('a') and self.car_x > 0:
-            print(self.car_x)
             self.car_x -= self.STEP
-            print(self.car_x)
         elif key & 0xFF == ord('d') and self.car_x < self.width - self.car_width:
-            print(key)
             self.car_x += self.STEP
 
     def run(self):
