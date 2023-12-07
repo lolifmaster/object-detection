@@ -5,6 +5,21 @@ from cv1 import tools, detection
 
 
 class CarDodgingGame:
+    """
+    A simple car dodging game where the player has to dodge the obstacles by moving the car left or right using the
+    'a' and 'd' keys or camera input.
+
+    :param width: the width of the game window
+    :param height: the height of the game window
+    :param car_width: the width of the car
+    :param car_height: the height of the car
+    :param obstacle_width: the width of the obstacles
+    :param obstacle_height: the height of the obstacles
+    :param obstacle_speed: the speed of the obstacles
+    :param lower_bound: the lower bound for the color detection
+    :param upper_bound: the upper bound for the color detection
+    :param step: the step for moving the car
+    """
     def __init__(self, width=400, height=600, car_width=50, car_height=30, obstacle_width=30, obstacle_height=30,
                  obstacle_speed=8, lower_bound=np.array([90, 20, 90]), upper_bound=np.array([101, 38, 95]), step: int = 10):
         self.game_window = None
