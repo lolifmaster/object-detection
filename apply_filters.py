@@ -15,17 +15,18 @@ if image is None:
 # emboss = filters.emboss(image)
 # bilateral = filters.bilateral(image, (7, 7), 75, 75)
 # cv2_bilateral = cv2.bilateralFilter(image, 7, 75, 75)
+black_image = image.copy()
+cv2.threshold(image, 127, 255, 0, black_image)
 
-
-kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-erode = filters.erode(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
-dilate = filters.dilate(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
-cv2_erode = cv2.erode(image, kernel, iterations=5)
-cv2_dilate = cv2.dilate(image, kernel, iterations=5)
-opening = filters.opening(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
-closing = filters.closing(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
-cv2_opening = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=5)
-cv2_closing = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel, iterations=5)
+kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (5, 5))
+erode = filters.erode(black_image, 5, iterations=5, kernel_shape=Shape.CROSS)
+dilate = filters.dilate(black_image, 5, iterations=5, kernel_shape=Shape.CROSS)
+cv2_erode = cv2.erode(black_image, kernel, iterations=5)
+cv2_dilate = cv2.dilate(black_image, kernel, iterations=5)
+opening = filters.opening(black_image, 5, iterations=5, kernel_shape=Shape.CROSS)
+closing = filters.closing(black_image, 5, iterations=5, kernel_shape=Shape.CROSS)
+cv2_opening = cv2.morphologyEx(black_image, cv2.MORPH_OPEN, kernel, iterations=5)
+cv2_closing = cv2.morphologyEx(black_image, cv2.MORPH_CLOSE, kernel, iterations=5)
 
 # show the results
 # cv2.imshow('original', image)
