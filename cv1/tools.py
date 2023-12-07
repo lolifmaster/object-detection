@@ -4,7 +4,7 @@ import numpy as np
 def range(stop, start=0, step=1):
     current = start
     while current < stop if step > 0 else current > stop:
-        yield current
+        yield current 
         current += step
 
 

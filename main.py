@@ -11,7 +11,7 @@ def main():
     if image is None:
         raise ValueError("Image not found")
     # cv2 gaussian filter
-    new_image_cv2 = cv2.GaussianBlur(image, (9, 9), 1)
+    new_image_cv2 = cv2.boxFilter(image, -1, (3, 3), normalize=True)
     # my gaussian filter
     new_image = filters.gaussian(image, (9, 9), 1)
 
@@ -20,7 +20,6 @@ def main():
     cv2.imshow("cv", new_image_cv2)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()

@@ -3,7 +3,6 @@ from cv1 import tools
 import numpy as np
 from cv1.tools import range
 
-
 def mean(src, kernel_size: Sequence[int]):
     """
     Apply mean filter to the source image.
