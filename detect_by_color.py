@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 from cv1 import detection, tools
+
+
 # from cv1.tools import range
 
 
@@ -15,15 +17,12 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     upper_bound = np.array(target_color_upper)
 
     # Create a binary mask where pixels within the color range are white and others are black
-    color_mask,contous = detection.in_range(hsv_image, lower_bound, upper_bound)
+    color_mask, contour = tools.in_range_detect(hsv_image, lower_bound, upper_bound)
 
-
-    original = detection.bitwise_and(image, mask=color_mask)
+    original = tools.bitwise_and(image, mask=color_mask)
 
     # Draw a rectangle around the detected object
-    final= detection.draw_contours(original,contous, color=(0 , 0, 255))
-
-
+    final = detection.draw_contours(original, contour, color=(0, 0, 255))
 
     # Display the original image and the result
     cv2.imshow("Original Image", image)

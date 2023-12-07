@@ -216,7 +216,7 @@ def create_shape(shape_type: Shape, size: int):
             raise ValueError("Invalid shape type")
 
 
-def in_range(image, lower_bound, upper_bound):
+def in_range_detect(image, lower_bound, upper_bound):
     # Ensure the image is in the correct format (e.g., RGB or BGR)
     if len(image.shape) == 2:
         raise ValueError("Input image must be in color (e.g., RGB or BGR)")
@@ -231,7 +231,11 @@ def in_range(image, lower_bound, upper_bound):
     lower_bound_b, lower_bound_g, lower_bound_r = lower_bound
     upper_bound_b, upper_bound_g, upper_bound_r = upper_bound
 
-    # Iterate over each pixel in the image
+    lower_x = width
+    lower_y = height
+    upper_x = 0
+    upper_y = 0
+
     for y in range(height):
         for x in range(width):
             # Extract the BGR values for the current pixel
@@ -243,7 +247,13 @@ def in_range(image, lower_bound, upper_bound):
                     lower_bound_r <= r <= upper_bound_r:
                 mask[y, x] = 255  # Set to 255 if within range
 
-    return mask
+                # find the upper and lower coordinates of the colored area
+                lower_x = lower_x if lower_x < x else x
+                lower_y = lower_y if lower_y < y else y
+                upper_x = upper_x if upper_x > x else x
+                upper_y = upper_y if upper_y > y else y
+
+    return mask, (upper_x, upper_y, lower_x, lower_y)
 
 
 def bitwise_and(src: np.array, mask):
