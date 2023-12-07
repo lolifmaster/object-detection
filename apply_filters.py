@@ -1,6 +1,6 @@
 import cv2
 import cv1.filters as filters
-import numpy as np
+from cv1 import Shape
 
 image = cv2.imread('data/ppp.png', cv2.IMREAD_GRAYSCALE)
 
@@ -13,12 +13,19 @@ if image is None:
 # sharpen = filters.sharpen(image)
 # laplacian = filters.laplacian(image)
 # emboss = filters.emboss(image)
-bilateral = filters.bilateral(image, (7, 7), 75, 75)
-cv2_bilateral = cv2.bilateralFilter(image, 7, 75, 75)
-erode = filters.erode(image, (5, 5), iterations=5)
-dilate = filters.dilate(image, (5, 5), iterations=5)
-cv2_erode = cv2.erode(image, np.ones((5, 5), dtype=np.uint8), iterations=5)
-cv2_dilate = cv2.dilate(image, np.ones((5, 5), dtype=np.uint8), iterations=5)
+# bilateral = filters.bilateral(image, (7, 7), 75, 75)
+# cv2_bilateral = cv2.bilateralFilter(image, 7, 75, 75)
+
+
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+erode = filters.erode(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
+dilate = filters.dilate(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
+cv2_erode = cv2.erode(image, kernel, iterations=5)
+cv2_dilate = cv2.dilate(image, kernel, iterations=5)
+opening = filters.opening(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
+closing = filters.closing(image, (5, 5), iterations=5, kernel_shape=Shape.SQUARE)
+cv2_opening = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=5)
+cv2_closing = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel, iterations=5)
 
 # show the results
 # cv2.imshow('original', image)
@@ -34,6 +41,10 @@ cv2.imshow('erode', erode)
 cv2.imshow('dilate', dilate)
 cv2.imshow('cv2_erode', cv2_erode)
 cv2.imshow('cv2_dilate', cv2_dilate)
+cv2.imshow('opening', opening)
+cv2.imshow('closing', closing)
+cv2.imshow('cv2_opening', cv2_opening)
+cv2.imshow('cv2_closing', cv2_closing)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

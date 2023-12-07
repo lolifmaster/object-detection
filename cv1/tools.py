@@ -200,16 +200,16 @@ def create_shape(shape_type: Shape, size: int):
 
     match shape_type:
         case Shape.SQUARE:
-            return np.ones((size, size))
+            return np.ones((size, size), dtype=np.uint8)
         case Shape.CIRCLE:
             return np.array([[0 if (i - size // 2) ** 2 + (j - size // 2) ** 2 > (size // 2) ** 2 else 1
-                              for j in range(size)] for i in range(size)])
+                              for j in range(size)] for i in range(size)], dtype=np.uint8)
         case Shape.CROSS:
-            return np.array([[1 if i == size // 2 or j == size // 2 else 0 for j in range(size)] for i in range(size)])
+            return np.array([[1 if i == size // 2 or j == size // 2 else 0 for j in range(size)] for i in range(size)], dtype=np.uint8)
         case Shape.TRIANGLE:
-            return np.array([[1 if i >= j else 0 for j in range(size)] for i in range(size)])
+            return np.array([[1 if i >= j else 0 for j in range(size)] for i in range(size)], dtype=np.uint8)
         case Shape.DIAMOND:
             return np.array([[1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 else 0
-                              for j in range(size)] for i in range(size)])
+                              for j in range(size)] for i in range(size)], dtype=np.uint8)
         case _:
             raise ValueError("Invalid shape type")

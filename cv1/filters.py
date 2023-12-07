@@ -2,6 +2,7 @@ from typing import Sequence
 from cv1 import tools
 import numpy as np
 from cv1.tools import range
+from cv1.shapes import Shape
 
 
 def mean(src, kernel_size: Sequence[int]):
@@ -201,31 +202,43 @@ def bilateral(src, kernel_size: Sequence[int], sigma_s: float, sigma_r: float):
     return dst
 
 
-def erode(src, kernel_size: Sequence[int], *, iterations: int = 1):
-    if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
-    if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
+def erode(src, kernel_size: Sequence[int], *, iterations: int = 1, kernel_shape: Shape = Shape.SQUARE):
+    """
+    Apply erosion to the source image.
 
+    Args:
+        src (numpy.ndarray): The source image.
+        kernel_size (Sequence[int]): The kernel size.
+        iterations (int): The number of iterations.
+        kernel_shape (Shape): The kernel shape.
+
+    Returns:
+        numpy.ndarray: The filtered image.
+    """
     dst = np.zeros_like(src)
-    pad_height = (kernel_size[0] - 1) // 2
-    pad_width = (kernel_size[1] - 1) // 2
-    temp_img = np.copy(src)
+    pad_width = ((kernel_size[0] - 1) // 2, kernel_size[0] // 2), ((kernel_size[1] - 1) // 2, kernel_size[1] // 2)
+    temp_img = src
 
     for _ in range(iterations):
-
-        padded_dst = tools.pad(temp_img, ((pad_height, pad_height), (pad_width, pad_width)), mode='edge')
-
+        padded_dst = tools.pad(temp_img, pad_width, mode='constant', constant_values=0)
         for i in range(temp_img.shape[0]):
             for j in range(temp_img.shape[1]):
-                dst[i, j] = np.min(padded_dst[i:i + kernel_size[0], j:j + kernel_size[1]])
+                match kernel_shape:
+                    case Shape.SQUARE:
+                        dst[i, j] = np.min(padded_dst[i:i + kernel_size[0], j:j + kernel_size[1]])
+                    case Shape.CROSS:
+                        dst[i, j] = np.min(
+                            [padded_dst[i:i + kernel_size[0], j + kernel_size[1] // 2],
+                             padded_dst[i + kernel_size[0] // 2, j:j + kernel_size[1]]])
+                    case _:
+                        raise ValueError("kernel_shape should be SQUARE or CROSS")
 
-        np.copyto(temp_img, dst)
+        temp_img = dst
 
     return dst
 
 
-def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1):
+def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1, kernel_shape: Shape = Shape.SQUARE):
     """
     Apply dilatation to the source image.
 
@@ -233,25 +246,63 @@ def dilate(src, kernel_size: Sequence[int], *, iterations: int = 1):
         src (numpy.ndarray): The source image.
         kernel_size (Sequence[int]): The kernel size.
         iterations (int): The number of iterations.
+        kernel_shape (Shape): The kernel shape.
 
     Raises:
         numpy.ndarray: The filtered image.
     """
-    if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
-    if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
-
     dst = np.zeros_like(src)
     pad_width = ((kernel_size[0] - 1) // 2, kernel_size[0] // 2), ((kernel_size[1] - 1) // 2, kernel_size[1] // 2)
     temp_img = src
 
     for _ in range(iterations):
-        padded_dst = tools.pad(temp_img, pad_width, mode='edge')
+        padded_dst = tools.pad(temp_img, pad_width, mode='constant', constant_values=0)
         for i in range(temp_img.shape[0]):
             for j in range(temp_img.shape[1]):
-                dst[i, j] = np.max(padded_dst[i:i + kernel_size[0], j:j + kernel_size[1]])
+                match kernel_shape:
+                    case Shape.SQUARE:
+                        dst[i, j] = np.max(padded_dst[i:i + kernel_size[0], j:j + kernel_size[1]])
+                    case Shape.CROSS:
+                        dst[i, j] = np.max(
+                            [padded_dst[i:i + kernel_size[0], j + kernel_size[1] // 2],
+                             padded_dst[i + kernel_size[0] // 2, j:j + kernel_size[1]]])
+                    case _:
+                        raise ValueError("kernel_shape should be SQUARE or CROSS")
 
         temp_img = dst
 
     return dst
+
+
+def opening(src, kernel_size: Sequence[int], *, iterations: int = 1, kernel_shape: Shape = Shape.SQUARE):
+    """
+    Apply opening to the source image.
+
+    Args:
+        src (numpy.ndarray): The source image.
+        kernel_size (Sequence[int]): The kernel size.
+        iterations (int): The number of iterations.
+        kernel_shape (Shape): The kernel shape.
+
+    Returns:
+        numpy.ndarray: The filtered image.
+    """
+    return dilate(erode(src, kernel_size, iterations=iterations, kernel_shape=kernel_shape), kernel_size,
+                  iterations=iterations)
+
+
+def closing(src, kernel_size: Sequence[int], *, iterations: int = 1, kernel_shape: Shape = Shape.SQUARE):
+    """
+    Apply closing to the source image.
+
+    Args:
+        src (numpy.ndarray): The source image.
+        kernel_size (Sequence[int]): The kernel size.
+        iterations (int): The number of iterations.
+        kernel_shape (Shape): The kernel shape.
+
+    Returns:
+        numpy.ndarray: The filtered image.
+    """
+    return erode(dilate(src, kernel_size, iterations=iterations, kernel_shape=kernel_shape), kernel_size,
+                 iterations=iterations)
