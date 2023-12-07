@@ -1,4 +1,5 @@
 import numpy as np
+from cv1.shapes import Shape
 
 
 def range(stop, start=0, step=1):
@@ -177,3 +178,36 @@ def bgr2hsv(src):
     hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2] = h, s, np.max(src, axis=2)
 
     return hsv
+
+
+def create_shape(shape_type: Shape, size: int):
+    """
+    Create a shape.
+
+    Args:
+        shape_type (Shape): The shape type.
+        size (int): The size of the shape.
+
+    Returns:
+        numpy.ndarray: The shape.
+    """
+
+    match shape_type:
+        case Shape.SQUARE:
+            return np.ones((size, size))
+        case Shape.CIRCLE:
+            return np.array([[0 if (i - size // 2) ** 2 + (j - size // 2) ** 2 > (size // 2) ** 2 else 1
+                              for j in range(size)] for i in range(size)])
+        case Shape.CROSS:
+            return np.array([[1 if i == size // 2 or j == size // 2 else 0 for j in range(size)] for i in range(size)])
+        case Shape.TRIANGLE:
+            return np.array([[1 if i >= j else 0 for j in range(size)] for i in range(size)])
+        case Shape.DIAMOND:
+            return np.array([[1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 else 0
+                              for j in range(size)] for i in range(size)])
+        case Shape.STAR:
+            return np.array([[1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 or
+                                   (i - size // 2) ** 2 + (j - size // 2) ** 2 <= (size // 2) ** 2 else 0
+                              for j in range(size)] for i in range(size)])
+        case _:
+            raise ValueError("Invalid shape type")

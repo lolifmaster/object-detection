@@ -37,3 +37,22 @@ def bitwise_and(src: np.array, mask):
     result[mask == 255] = src[mask == 255]
 
     return result
+
+
+def find_contours(image):
+    """
+    Find contours in an image.
+    :param image:
+    :return:
+    """
+    pass
+
+
+def draw_contours(src, contours):
+    """
+    Draw contours on an image.
+    :param src:
+    :param contours:
+    :return:
+    """
+    pass
