@@ -335,3 +335,63 @@ def threshold(src: np.array, threshold_value: int, max_value: int):
             dst[i, j] = max_value if src[i, j] > threshold_value else 0
 
     return dst
+
+def bitwise_not(image):
+    """
+    Perform bitwise NOT operation on the input image.
+
+    Args:
+        image (list[list[int]]): The input image represented as a 2D list.
+
+    Returns:
+        list[list[int]]: The result of the bitwise NOT operation.
+    """
+    # Ensure the input image is a list of lists
+    if not isinstance(image, list) or not all(isinstance(row, list) for row in image):
+        raise ValueError("Input should be a 2D list")
+
+    # Ensure the image has only one channel (grayscale)
+    if any(len(row) != len(image[0]) for row in image):
+        raise ValueError("Input should be a grayscale image with consistent row lengths")
+
+    # Invert pixel values 
+    result = [[255 - pixel for pixel in row] for row in image]
+
+    return result
+
+def add_weighted(img1, alpha, img2, beta, gamma):
+    """
+    Perform weighted sum of two images.
+
+    Args:
+        img1 (numpy.ndarray): The first input image.
+        alpha (float): Weight for the first image.
+        img2 (numpy.ndarray): The second input image.
+        beta (float): Weight for the second image.
+        gamma (float): Scalar added to each sum.
+
+    Returns:
+        numpy.ndarray: The result of the weighted sum.
+    """
+    # Ensure input images have the same shape
+    if img1.shape != img2.shape:
+        raise ValueError("Input images must have the same shape")
+
+    # Create an empty result image
+    result = img1.copy()
+
+    # Iterate over each pixel and perform the weighted addition
+    for y in range(img1.shape[0]):
+        for x in range(img1.shape[1]):
+            pixel1 = img1[y, x]
+            pixel2 = img2[y, x]
+
+            # Perform the weighted addition for each channel
+            new_pixel = tuple(
+                max(0, min(int(p1 * alpha + p2 * beta + gamma), 255)) for p1, p2 in zip(pixel1, pixel2)
+            )
+
+            # Update the result image with the new pixel value
+            result[y, x] = new_pixel
+
+    return result
