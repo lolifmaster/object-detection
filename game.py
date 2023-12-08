@@ -120,8 +120,8 @@ class CarDodgingGame:
 
             self.game_window = np.zeros((self.height, self.width, 3), dtype=np.uint8)
 
-            hsv_frame = tools.bgr2hsv(frame)
-
+            # hsv_frame = tools.bgr2hsv(frame)
+            hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             color_mask, contours = detection.in_range_detect(
                 hsv_frame, self.lower_bound, self.upper_bound
             )
