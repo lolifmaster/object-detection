@@ -300,12 +300,6 @@ def in_range(src: np.array, lower_bound, upper_bound):
     if len(upper_bound) != 3:
         raise ValueError("upper_bound should be a Sequence of length 3")
 
-    if not isinstance(lower_bound, Sequence):
-        raise ValueError("lower_bound should be a Sequence")
-
-    if not isinstance(upper_bound, Sequence):
-        raise ValueError("upper_bound should be a Sequence")
-
     mask = np.zeros((src.shape[0], src.shape[1]), dtype=np.uint8)
 
     for i in range(src.shape[0]):

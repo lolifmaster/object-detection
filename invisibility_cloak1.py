@@ -22,7 +22,7 @@ def invisibility_cloak(lower_red, upper_red):
         # hsv_frame = cv2.bgr2hsv(frame)
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # Create binary masks for the two color ranges
-        color_mask, _ = detection.in_range_detect(
+        color_mask = tools.in_range(
             hsv_frame, lower_red, upper_red
         )
         # removing noise from binary image , remove small bright spots (white regions)
