@@ -37,9 +37,7 @@ class ImageFilterApp(QWidget):
 
     def init_ui(self):
         self.image_label = QLabel(self)
-        self.image_label.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding
-        )
+        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.filter_combobox = QComboBox(self)
         for filter_data in self.filters:
@@ -148,7 +146,6 @@ class ImageFilterApp(QWidget):
             self.show_error_message("The game is already running!")
             return
         self.game_button.setEnabled(False)
-
         self.game_thread = GameHandler()
         self.game_thread.game_finished.connect(self.on_game_finished)
         self.game_thread.start()
