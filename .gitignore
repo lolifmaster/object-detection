@@ -66,3 +66,8 @@ cover/
 __pypackages__/
 
 
+
+# poetry
+pyproject.toml
+poetry.lock
+.venv
