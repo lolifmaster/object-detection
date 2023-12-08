@@ -11,7 +11,8 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     image = cv2.imread(image)
 
     # Convert the image from BGR to HSV color space
-    hsv_image = tools.bgr2hsv(image)
+    # hsv_image = tools.bgr2hsv(image)
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     # Define the lower and upper bounds of the target color in HSV
     lower_bound = np.array(target_color_lower)
     upper_bound = np.array(target_color_upper)
