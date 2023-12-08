@@ -1,7 +1,13 @@
 from typing import Sequence
 from cv1 import tools
 import numpy as np
+<<<<<<< Updated upstream
 from cv1.tools import range
+=======
+# from cv1.tools import range
+from cv1.shapes import Shape
+
+>>>>>>> Stashed changes
 
 def mean(src, kernel_size: Sequence[int]):
     """
