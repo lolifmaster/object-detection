@@ -22,10 +22,10 @@ class CarDodgingGame:
 
     """
     def __init__(self, width=400, height=600, car_width=50, car_height=80, obstacle_width=40, obstacle_height=30,
-                 obstacle_speed=2, lower_bound=np.array([90, 20, 90]), upper_bound=np.array([101, 38, 95]), step: int = 20,
+                 obstacle_speed=2, lower_bound=np.array([100, 50, 50]), upper_bound=np.array([130, 255, 255]), step: int = 20,
                  use_camera : bool = True):
         
-        
+        self.menu_window = None
         self.game_window = None
         self.width = width
         self.height = height
@@ -60,7 +60,7 @@ class CarDodgingGame:
 
         self.start_time = time.time()
         self.current_time = 0
-        self.acceleration_factor = 0.0001
+        self.acceleration_factor = 0.001
         self.spawn_probability = 0.001
 
         self.score = 0  
@@ -217,17 +217,31 @@ class CarDodgingGame:
         elif key == 83:  
             self.car_x = min(self.width - self.car_width, self.car_x + self.STEP)
 
+    
+    def restart(self):
+        """
+        Restart the game.
+        """
+        self.__init__(use_camera=self.use_camera)
+        self.run()
 
     def start_countdown(self):
         """
         Start the countdown before the game starts.
         """
         for i in range(3, 0, -1):
-            self.game_window = self.background.copy()
-            cv2.putText(self.game_window, str(i), (self.width // 2 - 20, self.height // 2),
+            self.menu_window = self.background.copy()
+            cv2.putText(self.menu_window, "Car Dodging Game", (self.width // 2 - 130, self.height // 2 - 100),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-            cv2.imshow("Car Dodging Game", self.game_window)
+            cv2.putText(self.menu_window, f"Score: {self.score}", (self.width // 2 - 50, self.height // 2 - 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(self.menu_window, f"Time: {int(self.current_time)}", (self.width // 2 - 50, self.height // 2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(self.menu_window, f"Starting in {i}...", (self.width // 2 - 60, self.height // 2 + 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.imshow("Car Dodging Game Menu", self.menu_window)
             cv2.waitKey(1000)
+
 
     def run(self):
         """
@@ -235,11 +249,11 @@ class CarDodgingGame:
         """
 
         while True:
-            # Show the start screen with a countdown when pressing 's'
-            self.game_window = self.background.copy()
-            cv2.putText(self.game_window, "Press 's' to start", (self.width // 2 - 120, self.height // 2),
+            # show the start screen with a countdown when pressing 's'
+            self.menu_window = self.background.copy()
+            cv2.putText(self.menu_window, "Press 's' to start", (self.width // 2 - 120, self.height // 2),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            cv2.imshow("Car Dodging Game", self.game_window)
+            cv2.imshow("Car Dodging Game Menu", self.menu_window)
 
             key = cv2.waitKey(1)
             if key & 0xFF == ord('q'):
@@ -247,13 +261,19 @@ class CarDodgingGame:
             elif key & 0xFF == ord('s'):
                 self.start_countdown()
                 break
-        
-        # Start the game with camera if enabled
-        cap = cv2.VideoCapture(0) if self.use_camera else None
 
-        if self.use_camera and not cap.isOpened():
-            print("Error: Could not open camera.")
-            return
+        cap = None
+        # start the game with camera if enabled
+        if self.use_camera :
+            cap = cv2.VideoCapture(0) 
+            desired_width = 300
+            desired_height = 150
+
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
+            if self.use_camera and not cap.isOpened():
+                print("Error: Could not open camera.")
+                return
 
         while True:
             if self.use_camera:
@@ -306,9 +326,10 @@ class CarDodgingGame:
 
             if self.use_camera:
                 cv2.imshow("final", original)
+                cv2.imshow("image",frame)
                 cv2.imshow("Car Dodging Game", self.game_window)
             else:
-                cv2.imshow("final", self.game_window)
+                cv2.imshow("Car Dodging Game", self.game_window)
 
             key = cv2.waitKey(1)
             if key & 0xFF == ord("q"):
@@ -318,9 +339,34 @@ class CarDodgingGame:
 
         if cap is not None:
             cap.release()
-        cv2.destroyAllWindows()
+        cv2.destroyWindow("Car Dodging Game")
+
+        # update the menu window with the final score
+        self.menu_window = self.background.copy()
+        cv2.putText(self.menu_window, "Game Over!", (self.width // 2 - 50, self.height // 2 - 100),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.putText(self.menu_window, f"Score: {self.score}", (self.width // 2 - 50, self.height // 2 - 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.putText(self.menu_window, f"Time: {int(self.current_time)}", (self.width // 2 - 50, self.height // 2),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.putText(self.menu_window, "Press 'p' to play again", (self.width // 2 - 120, self.height // 2 + 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.putText(self.menu_window, "Press 'q' to quit", (self.width // 2 - 80, self.height // 2 + 100),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        
+        cv2.imshow("Car Dodging Game Menu", self.menu_window)
+
+        # Wait for 'p' key to restart the game
+        while True:
+            key = cv2.waitKey(1)
+            if key & 0xFF == ord("p"):
+                self.restart()
+            elif key & 0xFF == ord("q"):
+                break
+
+
 
 if __name__ == "__main__":
-    use_camera = False  
+    use_camera = True  
     game = CarDodgingGame(use_camera=use_camera)
     game.run()
