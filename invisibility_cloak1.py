@@ -42,7 +42,7 @@ def invisibility_cloak(lower_red, upper_red):
         # Extract the part of the background corresponding to the cloak
         background_part = tools.bitwise_and(background, mask=color_mask)
         # Replace the cloak color with the background part
-        result_frame = tools.addWeighted(cloak_color, 1, background_part, 1, 0)
+        result_frame = tools.add_weighted(cloak_color, 1, background_part, 1, 0)
         # detecting things which are not red
         color_free = tools.bitwise_not(color_mask)
         # if cloak is not present show the current image

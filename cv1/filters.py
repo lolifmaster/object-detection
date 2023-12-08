@@ -1,11 +1,9 @@
 from typing import Sequence
 from cv1 import tools
 import numpy as np
-<<<<<<< Updated upstream
 from cv1.tools import range
 from cv1.shapes import Shape
 
->>>>>>> Stashed changes
 
 def mean(src, kernel_size: Sequence[int]):
     """
@@ -56,7 +54,6 @@ def median(src, kernel_size: Sequence[int]):
             dst[i, j] = np.median(
                 padded_src[i : i + kernel_size[0], j : j + kernel_size[1]]
             )
-
     return dst
 
 

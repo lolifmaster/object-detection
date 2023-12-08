@@ -346,18 +346,19 @@ def bitwise_not(image):
     Returns:
         list[list[int]]: The result of the bitwise NOT operation.
     """
-    # Ensure the input image is a list of lists
-    if not isinstance(image, list) or not all(isinstance(row, list) for row in image):
-        raise ValueError("Input should be a 2D list")
+    # Ensure the input image is a NumPy array
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Input should be a NumPy array")
 
     # Ensure the image has only one channel (grayscale)
-    if any(len(row) != len(image[0]) for row in image):
-        raise ValueError("Input should be a grayscale image with consistent row lengths")
+    if len(image.shape) != 2:
+        raise ValueError("Input should be a grayscale image with 2 dimensions")
 
     # Invert pixel values 
-    result = [[255 - pixel for pixel in row] for row in image]
+    result = 255 - image
 
     return result
+
 
 def add_weighted(img1, alpha, img2, beta, gamma):
     """
