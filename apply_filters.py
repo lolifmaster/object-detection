@@ -2,10 +2,10 @@ import cv2
 import cv1.filters as filters
 from cv1 import Shape, tools
 
-image = cv2.imread('data/ppp.png', cv2.IMREAD_GRAYSCALE)
+image = cv2.imread("data/ppp.png", cv2.IMREAD_GRAYSCALE)
 
 if image is None:
-    raise ValueError('Image not found')
+    raise ValueError("Image not found")
 
 # mean = filters.mean(image, (7, 7))
 # median = filters.median(image, (7, 7))
@@ -37,14 +37,14 @@ cv2_closing = cv2.morphologyEx(black_image, cv2.MORPH_CLOSE, kernel, iterations=
 # cv2.imshow('emboss', emboss)
 # cv2.imshow('bilateral', bilateral)
 # cv2.imshow('cv2_bilateral', cv2_bilateral)
-cv2.imshow('erode', erode)
-cv2.imshow('dilate', dilate)
-cv2.imshow('cv2_erode', cv2_erode)
-cv2.imshow('cv2_dilate', cv2_dilate)
-cv2.imshow('opening', opening)
-cv2.imshow('closing', closing)
-cv2.imshow('cv2_opening', cv2_opening)
-cv2.imshow('cv2_closing', cv2_closing)
+cv2.imshow("erode", erode)
+cv2.imshow("dilate", dilate)
+cv2.imshow("cv2_erode", cv2_erode)
+cv2.imshow("cv2_dilate", cv2_dilate)
+cv2.imshow("opening", opening)
+cv2.imshow("closing", closing)
+cv2.imshow("cv2_opening", cv2_opening)
+cv2.imshow("cv2_closing", cv2_closing)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

@@ -3,7 +3,7 @@ import numpy as np
 
 
 def draw_contours(image, contours, color=(0, 255, 0)):
-    """color the rectangle around the detected contour """
+    """color the rectangle around the detected contour"""
 
     upper_x_contour, upper_y_contour, lower_x_contour, lower_y_contour = contours
 
@@ -34,15 +34,15 @@ def calculate_center(contours):
 
 def in_range_detect(image, lower_bound, upper_bound):
     """
-     performs a color detection in the specified range and returns a mask
-     and the upper and lower coordinates of the detected object
+    performs a color detection in the specified range and returns a mask
+    and the upper and lower coordinates of the detected object
 
 
-        :param image: the image to be processed
-        :param lower_bound: the lower bound for the color detection
-        :param upper_bound: the upper bound for the color detection
+       :param image: the image to be processed
+       :param lower_bound: the lower bound for the color detection
+       :param upper_bound: the upper bound for the color detection
 
-        :return: a mask with the detected object and the upper and lower coordinates of the detected object
+       :return: a mask with the detected object and the upper and lower coordinates of the detected object
 
     """
     if len(image.shape) == 2:
@@ -65,9 +65,11 @@ def in_range_detect(image, lower_bound, upper_bound):
             h, s, v = image[y, x]
 
             # Check if the pixel values are within the specified range for each channel
-            if lower_bound_b <= h <= upper_bound_b and \
-                    lower_bound_g <= s <= upper_bound_g and \
-                    lower_bound_r <= v <= upper_bound_r:
+            if (
+                lower_bound_b <= h <= upper_bound_b
+                and lower_bound_g <= s <= upper_bound_g
+                and lower_bound_r <= v <= upper_bound_r
+            ):
                 mask[y, x] = 255  # Set to 255 if within range
 
                 # add the coordinates to the list of points

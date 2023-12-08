@@ -167,10 +167,10 @@ class CarDodgingGame:
 
         for obstacle in self.obstacles:
             if (
-                    self.car_x < obstacle[0] + self.obstacle_width
-                    and self.car_x + self.car_width > obstacle[0]
-                    and self.car_y < obstacle[1] + self.obstacle_height
-                    and self.car_y + self.car_height > obstacle[1]
+                self.car_x < obstacle[0] + self.obstacle_width
+                and self.car_x + self.car_width > obstacle[0]
+                and self.car_y < obstacle[1] + self.obstacle_height
+                and self.car_y + self.car_height > obstacle[1]
             ):
                 return True
         return False
@@ -311,7 +311,7 @@ class CarDodgingGame:
                 cv2.imshow("final", self.game_window)
 
             key = cv2.waitKey(1)
-            if key & 0xFF == ord('q'):
+            if key & 0xFF == ord("q"):
                 break
             else:
                 self.handle_key_input(key)

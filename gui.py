@@ -1,100 +1,46 @@
 import sys
-import ast
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QPushButton,
-    QFileDialog, QComboBox, QDialog, QFormLayout, QLineEdit, QMessageBox,
+    QApplication,
+    QWidget,
+    QLabel,
+    QVBoxLayout,
+    QPushButton,
+    QFileDialog,
+    QComboBox,
+    QHBoxLayout,
+    QSpacerItem,
+    QSizePolicy,
+    QMessageBox,
+    QDialog,
 )
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
-from cv1.filters import mean, median, gaussian, laplacian, edge_detection, sharpen, emboss, bilateral, opening, closing, erode, dilate
 from cv1 import Shape, tools
-
-
-class FilterInputDialog(QDialog):
-    def __init__(self, arguments, parent=None):
-        super(FilterInputDialog, self).__init__(parent)
-        self.setWindowTitle('Filter Parameters')
-        self.layout = QFormLayout(self)
-        self.arguments = arguments
-        self.input_widgets = {}
-        self.error_labels = {}
-
-        for argument_name in self.arguments:
-            if argument_name == "kernel_shape":
-                input_widget = QComboBox(self)
-                input_widget.addItems(['rect', 'cross'])
-            else:
-                input_widget = QLineEdit(self)
-            error_label = QLabel(self)
-            error_label.setStyleSheet("color: red; font-size: 10px;")
-            self.layout.addRow(f"{argument_name.capitalize()}: ", input_widget)
-            self.layout.addRow("", error_label)
-            self.input_widgets[argument_name] = input_widget
-            self.error_labels[argument_name] = error_label
-
-        self.submit_button = QPushButton('Apply Filter', self)
-        self.submit_button.clicked.connect(self.validate_and_accept)
-        self.layout.addRow(self.submit_button)
-
-    def validate_and_accept(self):
-        if self.validate_inputs():
-            self.accept()
-
-    def validate_inputs(self):
-        for argument_name, input_widget in self.input_widgets.items():
-            error_label = self.error_labels[argument_name]
-            if argument_name == "kernel_shape":
-                # No need to check for emptiness in a combo box
-                error_label.clear()
-            elif input_widget.text().strip() == "":
-                error_label.setText("This field is required")
-                return False
-            else:
-                error_label.clear()
-        return True
-
-    def get_argument_values(self):
-        argument_values = {}
-        for argument_name, input_widget in self.input_widgets.items():
-            if argument_name == "kernel_shape":
-                argument_values[argument_name] = Shape(self.input_widgets[argument_name].currentText())
-            else:
-                try:
-                    argument_values[argument_name] = ast.literal_eval(input_widget.text())
-                except (SyntaxError, ValueError):
-                    argument_values[argument_name] = input_widget.text()
-        return argument_values
+from game import CarDodgingGame
+from game_worker import GameHandler
+from image_processor import FilterInputDialog, FILTERS
 
 
 class ImageFilterApp(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.game_button = None
         self.apply_button = None
         self.upload_button = None
         self.image_label = None
         self.filter_combobox = None
         self.original_image = None
-        self.filters = [
-            {"name": "Mean Filter", "function": mean, "arguments": ["kernel_size"]},
-            {"name": "Median Filter", "function": median, "arguments": ["kernel_size"]},
-            {"name": "Gaussian Filter", "function": gaussian, "arguments": ["kernel_size", "sigma"]},
-            {"name": "Laplacian Filter", "function": laplacian, "arguments": []},
-            {"name": "Edge Detection Filter", "function": edge_detection, "arguments": []},
-            {"name": "Sharpen Filter", "function": sharpen, "arguments": []},
-            {"name": "Emboss Filter", "function": emboss, "arguments": []},
-            {"name": "Bilateral Filter", "function": bilateral, "arguments": ["kernel_size", "sigma_s", "sigma_r"]},
-            {"name": "Opening", "function": opening, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-            {"name": "Closing", "function": closing, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-            {"name": "Erosion", "function": erode, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-            {"name": "Dilation", "function": dilate, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-        ]
-
+        self.game_thread = None
+        self.filters = FILTERS
         self.init_ui()
 
     def init_ui(self):
         self.image_label = QLabel(self)
-        self.image_label.resize(400, 400)
+        self.image_label.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding
+        )
+
         self.filter_combobox = QComboBox(self)
         for filter_data in self.filters:
             self.filter_combobox.addItem(filter_data["name"])
@@ -105,20 +51,36 @@ class ImageFilterApp(QWidget):
         self.apply_button = QPushButton("Apply Filter", self)
         self.apply_button.clicked.connect(self.show_filter_input_dialog)
 
-        vbox = QVBoxLayout()
+        self.game_button = QPushButton("Play Game", self)
+        self.game_button.clicked.connect(self.start_game_thread)
+
+        vbox = QVBoxLayout(self)
         vbox.addWidget(self.upload_button)
-        vbox.addWidget(self.filter_combobox)
-        vbox.addWidget(self.apply_button)
-        vbox.addWidget(self.image_label)
+
+        # Improved layout using QHBoxLayout
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.filter_combobox)
+        hbox.addWidget(self.apply_button)
+        hbox.addWidget(self.game_button)
+        vbox.addLayout(hbox)
+
+        vbox.addWidget(self.image_label, 1)  # Add stretch factor to the image_label
+
+        # Add spacer to push widgets to the top
+        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        vbox.addItem(spacer)
+
+        self.setWindowTitle("Image Filter App")
+        self.setGeometry(100, 100, 800, 600)
 
         self.setLayout(vbox)
-        self.setWindowTitle('Image Filter App')
-        self.setGeometry(100, 100, 800, 600)
         self.show()
 
     def load_image(self):
         file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, 'Open Image File', '', 'Images (*.png *.jpg *.bmp *.jfif)')
+        file_path, _ = file_dialog.getOpenFileName(
+            self, "Open Image File", "", "Images (*.png *.jpg *.bmp *.jfif)"
+        )
         if file_path:
             pixmap = QPixmap(file_path)
             self.image_label.setPixmap(pixmap)
@@ -150,7 +112,9 @@ class ImageFilterApp(QWidget):
                 argument_values = input_dialog.get_argument_values()
 
                 # Apply the selected filter to the original image with the provided arguments
-                result_image = selected_filter["function"](test_image, **argument_values)
+                result_image = selected_filter["function"](
+                    test_image, **argument_values
+                )
 
                 # Display the result image
                 self.display_image(result_image)
@@ -172,13 +136,31 @@ class ImageFilterApp(QWidget):
         # Convert the image data to a format that can be displayed with QPixmap
         height, width = image_data.shape
         bytes_per_line = width
-        image = QImage(image_data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+        image = QImage(
+            image_data, width, height, bytes_per_line, QImage.Format_Grayscale8
+        )
         pixmap = QPixmap(image)
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
 
+    def start_game_thread(self):
+        if self.game_thread is not None and self.game_thread.isRunning():
+            self.show_error_message("The game is already running!")
+            return
+        self.game_button.setEnabled(False)
 
-if __name__ == '__main__':
+        self.game_thread = GameHandler()
+        self.game_thread.game_finished.connect(self.on_game_finished)
+        self.game_thread.start()
+
+    def on_game_finished(self):
+        QMessageBox.information(self, "Game Finished", "The game has finished!")
+        self.game_thread.quit()
+        self.game_thread = None
+        self.game_button.setEnabled(True)
+
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = ImageFilterApp()
     sys.exit(app.exec_())
