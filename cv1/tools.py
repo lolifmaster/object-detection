@@ -10,7 +10,7 @@ def range(stop, start=0, step=1):
         current += step
 
 
-def pad(src, pad_width, mode='constant', constant_values=0):
+def pad(src, pad_width, mode="constant", constant_values=0):
     """
     Pad an image.
 
@@ -29,7 +29,7 @@ def pad(src, pad_width, mode='constant', constant_values=0):
     if len(pad_width) != 2:
         raise ValueError("pad_width should be an Sequence of length 2")
 
-    if mode not in ['constant', 'edge']:
+    if mode not in ["constant", "edge"]:
         raise ValueError("mode should be 'constant' or 'edge'")
 
     if not isinstance(src, np.ndarray):
@@ -39,25 +39,37 @@ def pad(src, pad_width, mode='constant', constant_values=0):
         raise ValueError("src should be a 2D array")
 
     padded_src = np.zeros(
-        (src.shape[0] + pad_width[0][0] + pad_width[0][1], src.shape[1] + pad_width[1][0] + pad_width[1][1]))
+        (
+            src.shape[0] + pad_width[0][0] + pad_width[0][1],
+            src.shape[1] + pad_width[1][0] + pad_width[1][1],
+        )
+    )
 
-    if mode == 'constant':
-        padded_src[pad_width[0][0]:-pad_width[0][1], pad_width[1][0]:-pad_width[1][1]] = src
-        padded_src[:pad_width[0][0], :] = constant_values
-        padded_src[-pad_width[0][1]:, :] = constant_values
-        padded_src[:, :pad_width[1][0]] = constant_values
-        padded_src[:, -pad_width[1][1]:] = constant_values
+    if mode == "constant":
+        padded_src[
+            pad_width[0][0] : -pad_width[0][1], pad_width[1][0] : -pad_width[1][1]
+        ] = src
+        padded_src[: pad_width[0][0], :] = constant_values
+        padded_src[-pad_width[0][1] :, :] = constant_values
+        padded_src[:, : pad_width[1][0]] = constant_values
+        padded_src[:, -pad_width[1][1] :] = constant_values
 
-    elif mode == 'edge':
-        padded_src[pad_width[0][0]:-pad_width[0][1], pad_width[1][0]:-pad_width[1][1]] = src
-        padded_src[:pad_width[0][0], pad_width[1][0]:-pad_width[1][1]] = src[0]
-        padded_src[-pad_width[0][1]:, pad_width[1][0]:-pad_width[1][1]] = src[-1]
-        padded_src[pad_width[0][0]:-pad_width[0][1], :pad_width[1][0]] = src[:, 0].reshape(-1, 1)
-        padded_src[pad_width[0][0]:-pad_width[0][1], -pad_width[1][1]:] = src[:, -1].reshape(-1, 1)
-        padded_src[:pad_width[0][0], :pad_width[1][0]] = src[0, 0]
-        padded_src[:pad_width[0][0], -pad_width[1][1]:] = src[0, -1]
-        padded_src[-pad_width[0][1]:, :pad_width[1][0]] = src[-1, 0]
-        padded_src[-pad_width[0][1]:, -pad_width[1][1]:] = src[-1, -1]
+    elif mode == "edge":
+        padded_src[
+            pad_width[0][0] : -pad_width[0][1], pad_width[1][0] : -pad_width[1][1]
+        ] = src
+        padded_src[: pad_width[0][0], pad_width[1][0] : -pad_width[1][1]] = src[0]
+        padded_src[-pad_width[0][1] :, pad_width[1][0] : -pad_width[1][1]] = src[-1]
+        padded_src[pad_width[0][0] : -pad_width[0][1], : pad_width[1][0]] = src[
+            :, 0
+        ].reshape(-1, 1)
+        padded_src[pad_width[0][0] : -pad_width[0][1], -pad_width[1][1] :] = src[
+            :, -1
+        ].reshape(-1, 1)
+        padded_src[: pad_width[0][0], : pad_width[1][0]] = src[0, 0]
+        padded_src[: pad_width[0][0], -pad_width[1][1] :] = src[0, -1]
+        padded_src[-pad_width[0][1] :, : pad_width[1][0]] = src[-1, 0]
+        padded_src[-pad_width[0][1] :, -pad_width[1][1] :] = src[-1, -1]
 
     return padded_src
 
@@ -84,7 +96,7 @@ def clip_array(array, min_value, max_value):
     return array
 
 
-def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
+def filter_2d(src, kernel, mode="edge", constant_values=0, clip=True):
     """
     Apply a 2D filter to the source image.
 
@@ -118,7 +130,9 @@ def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
     pad_cols = k_cols // 2
 
     # Pad the image
-    padded_image = pad(src, ((pad_rows, pad_rows), (pad_cols, pad_cols)), mode, constant_values)
+    padded_image = pad(
+        src, ((pad_rows, pad_rows), (pad_cols, pad_cols)), mode, constant_values
+    )
 
     # Initialize the output image
     output_image = np.zeros_like(src, dtype=np.float32)
@@ -126,7 +140,9 @@ def filter_2d(src, kernel, mode='edge', constant_values=0, clip=True):
     # Convolution operation
     for i in range(rows):
         for j in range(cols):
-            output_image[i, j] = np.sum(padded_image[i:i + k_rows, j:j + k_cols] * kernel)
+            output_image[i, j] = np.sum(
+                padded_image[i : i + k_rows, j : j + k_cols] * kernel
+            )
 
     if clip:
         output_image = clip_array(output_image, 0, 255)
@@ -149,7 +165,7 @@ def bgr2hsv(src):
 
     if src.shape[2] != 3:
         raise ValueError("src should be a BGR image")
-    np.seterr(divide='ignore', invalid='ignore')
+    np.seterr(divide="ignore", invalid="ignore")
 
     hsv = np.zeros_like(src)
 
@@ -168,7 +184,7 @@ def bgr2hsv(src):
     # Calculate the hue channel
     h = np.zeros_like(v)
 
-    delta = (v - m)
+    delta = v - m
 
     h[v == r] = 60 * (g[v == r] - b[v == r]) / (delta[v == r])
     h[v == g] = 120 + 60 * (b[v == g] - r[v == g]) / (delta[v == g])
@@ -202,16 +218,43 @@ def create_shape(shape_type: Shape, size: int):
         case Shape.SQUARE:
             return np.ones((size, size), dtype=np.uint8)
         case Shape.RECT:
-            return np.array([[0 if (i - size // 2) ** 2 + (j - size // 2) ** 2 > (size // 2) ** 2 else 1
-                              for j in range(size)] for i in range(size)], dtype=np.uint8)
+            return np.array(
+                [
+                    [
+                        0
+                        if (i - size // 2) ** 2 + (j - size // 2) ** 2
+                        > (size // 2) ** 2
+                        else 1
+                        for j in range(size)
+                    ]
+                    for i in range(size)
+                ],
+                dtype=np.uint8,
+            )
         case Shape.CROSS:
-            return np.array([[1 if i == size // 2 or j == size // 2 else 0 for j in range(size)] for i in range(size)],
-                            dtype=np.uint8)
+            return np.array(
+                [
+                    [1 if i == size // 2 or j == size // 2 else 0 for j in range(size)]
+                    for i in range(size)
+                ],
+                dtype=np.uint8,
+            )
         case Shape.TRIANGLE:
-            return np.array([[1 if i >= j else 0 for j in range(size)] for i in range(size)], dtype=np.uint8)
+            return np.array(
+                [[1 if i >= j else 0 for j in range(size)] for i in range(size)],
+                dtype=np.uint8,
+            )
         case Shape.DIAMOND:
-            return np.array([[1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 else 0
-                              for j in range(size)] for i in range(size)], dtype=np.uint8)
+            return np.array(
+                [
+                    [
+                        1 if abs(i - size // 2) + abs(j - size // 2) <= size // 2 else 0
+                        for j in range(size)
+                    ]
+                    for i in range(size)
+                ],
+                dtype=np.uint8,
+            )
         case _:
             raise ValueError("Invalid shape type")
 
@@ -257,9 +300,11 @@ def in_range(src: np.array, lower_bound, upper_bound):
 
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
-            if lower_bound[0] <= src[i, j, 0] <= upper_bound[0] and \
-                    lower_bound[1] <= src[i, j, 1] <= upper_bound[1] and \
-                    lower_bound[2] <= src[i, j, 2] <= upper_bound[2]:
+            if (
+                lower_bound[0] <= src[i, j, 0] <= upper_bound[0]
+                and lower_bound[1] <= src[i, j, 1] <= upper_bound[1]
+                and lower_bound[2] <= src[i, j, 2] <= upper_bound[2]
+            ):
                 mask[i, j] = 255
 
     return mask

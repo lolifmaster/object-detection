@@ -1,19 +1,41 @@
 import sys
 import ast
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QPushButton,
-    QFileDialog, QComboBox, QDialog, QFormLayout, QLineEdit, QMessageBox,
+    QApplication,
+    QWidget,
+    QLabel,
+    QVBoxLayout,
+    QPushButton,
+    QFileDialog,
+    QComboBox,
+    QDialog,
+    QFormLayout,
+    QLineEdit,
+    QMessageBox,
 )
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
-from cv1.filters import mean, median, gaussian, laplacian, edge_detection, sharpen, emboss, bilateral, opening, closing, erode, dilate
+from cv1.filters import (
+    mean,
+    median,
+    gaussian,
+    laplacian,
+    edge_detection,
+    sharpen,
+    emboss,
+    bilateral,
+    opening,
+    closing,
+    erode,
+    dilate,
+)
 from cv1 import Shape, tools
 
 
 class FilterInputDialog(QDialog):
     def __init__(self, arguments, parent=None):
         super(FilterInputDialog, self).__init__(parent)
-        self.setWindowTitle('Filter Parameters')
+        self.setWindowTitle("Filter Parameters")
         self.layout = QFormLayout(self)
         self.arguments = arguments
         self.input_widgets = {}
@@ -22,7 +44,7 @@ class FilterInputDialog(QDialog):
         for argument_name in self.arguments:
             if argument_name == "kernel_shape":
                 input_widget = QComboBox(self)
-                input_widget.addItems(['rect', 'cross'])
+                input_widget.addItems(["rect", "cross"])
             else:
                 input_widget = QLineEdit(self)
             error_label = QLabel(self)
@@ -32,7 +54,7 @@ class FilterInputDialog(QDialog):
             self.input_widgets[argument_name] = input_widget
             self.error_labels[argument_name] = error_label
 
-        self.submit_button = QPushButton('Apply Filter', self)
+        self.submit_button = QPushButton("Apply Filter", self)
         self.submit_button.clicked.connect(self.validate_and_accept)
         self.layout.addRow(self.submit_button)
 
@@ -57,10 +79,14 @@ class FilterInputDialog(QDialog):
         argument_values = {}
         for argument_name, input_widget in self.input_widgets.items():
             if argument_name == "kernel_shape":
-                argument_values[argument_name] = Shape(self.input_widgets[argument_name].currentText())
+                argument_values[argument_name] = Shape(
+                    self.input_widgets[argument_name].currentText()
+                )
             else:
                 try:
-                    argument_values[argument_name] = ast.literal_eval(input_widget.text())
+                    argument_values[argument_name] = ast.literal_eval(
+                        input_widget.text()
+                    )
                 except (SyntaxError, ValueError):
                     argument_values[argument_name] = input_widget.text()
         return argument_values
@@ -78,16 +104,44 @@ class ImageFilterApp(QWidget):
         self.filters = [
             {"name": "Mean Filter", "function": mean, "arguments": ["kernel_size"]},
             {"name": "Median Filter", "function": median, "arguments": ["kernel_size"]},
-            {"name": "Gaussian Filter", "function": gaussian, "arguments": ["kernel_size", "sigma"]},
+            {
+                "name": "Gaussian Filter",
+                "function": gaussian,
+                "arguments": ["kernel_size", "sigma"],
+            },
             {"name": "Laplacian Filter", "function": laplacian, "arguments": []},
-            {"name": "Edge Detection Filter", "function": edge_detection, "arguments": []},
+            {
+                "name": "Edge Detection Filter",
+                "function": edge_detection,
+                "arguments": [],
+            },
             {"name": "Sharpen Filter", "function": sharpen, "arguments": []},
             {"name": "Emboss Filter", "function": emboss, "arguments": []},
-            {"name": "Bilateral Filter", "function": bilateral, "arguments": ["kernel_size", "sigma_s", "sigma_r"]},
-            {"name": "Opening", "function": opening, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-            {"name": "Closing", "function": closing, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-            {"name": "Erosion", "function": erode, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
-            {"name": "Dilation", "function": dilate, "arguments": ["kernel_size", "iterations", "kernel_shape"]},
+            {
+                "name": "Bilateral Filter",
+                "function": bilateral,
+                "arguments": ["kernel_size", "sigma_s", "sigma_r"],
+            },
+            {
+                "name": "Opening",
+                "function": opening,
+                "arguments": ["kernel_size", "iterations", "kernel_shape"],
+            },
+            {
+                "name": "Closing",
+                "function": closing,
+                "arguments": ["kernel_size", "iterations", "kernel_shape"],
+            },
+            {
+                "name": "Erosion",
+                "function": erode,
+                "arguments": ["kernel_size", "iterations", "kernel_shape"],
+            },
+            {
+                "name": "Dilation",
+                "function": dilate,
+                "arguments": ["kernel_size", "iterations", "kernel_shape"],
+            },
         ]
 
         self.init_ui()
@@ -112,13 +166,15 @@ class ImageFilterApp(QWidget):
         vbox.addWidget(self.image_label)
 
         self.setLayout(vbox)
-        self.setWindowTitle('Image Filter App')
+        self.setWindowTitle("Image Filter App")
         self.setGeometry(100, 100, 800, 600)
         self.show()
 
     def load_image(self):
         file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, 'Open Image File', '', 'Images (*.png *.jpg *.bmp *.jfif)')
+        file_path, _ = file_dialog.getOpenFileName(
+            self, "Open Image File", "", "Images (*.png *.jpg *.bmp *.jfif)"
+        )
         if file_path:
             pixmap = QPixmap(file_path)
             self.image_label.setPixmap(pixmap)
@@ -150,7 +206,9 @@ class ImageFilterApp(QWidget):
                 argument_values = input_dialog.get_argument_values()
 
                 # Apply the selected filter to the original image with the provided arguments
-                result_image = selected_filter["function"](test_image, **argument_values)
+                result_image = selected_filter["function"](
+                    test_image, **argument_values
+                )
 
                 # Display the result image
                 self.display_image(result_image)
@@ -172,13 +230,15 @@ class ImageFilterApp(QWidget):
         # Convert the image data to a format that can be displayed with QPixmap
         height, width = image_data.shape
         bytes_per_line = width
-        image = QImage(image_data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+        image = QImage(
+            image_data, width, height, bytes_per_line, QImage.Format_Grayscale8
+        )
         pixmap = QPixmap(image)
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = ImageFilterApp()
     sys.exit(app.exec_())

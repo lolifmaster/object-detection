@@ -32,6 +32,6 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
 
 
 # Specify the path to your image and the target color range in HSV
-image_path = 'data/orange.png'
+image_path = "data/orange.png"
 
 detect_objects_by_color(image_path, [5, 50, 50], [15, 255, 255])

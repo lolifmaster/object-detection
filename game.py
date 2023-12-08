@@ -21,8 +21,20 @@ class CarDodgingGame:
     :param step: the step for moving the car
 
     """
-    def __init__(self, width=400, height=600, car_width=50, car_height=30, obstacle_width=30, obstacle_height=30,
-                 obstacle_speed=8, lower_bound=np.array([90, 20, 90]), upper_bound=np.array([101, 38, 95]), step: int = 10):
+
+    def __init__(
+        self,
+        width=400,
+        height=600,
+        car_width=50,
+        car_height=30,
+        obstacle_width=30,
+        obstacle_height=30,
+        obstacle_speed=8,
+        lower_bound=np.array([90, 20, 90]),
+        upper_bound=np.array([101, 38, 95]),
+        step: int = 10,
+    ):
         self.game_window = None
         self.width = width
         self.height = height
@@ -39,26 +51,39 @@ class CarDodgingGame:
         self.obstacles = []
 
     def draw_car(self):
-        cv2.rectangle(self.game_window, pt1=(self.car_x, self.car_y),
-                      pt2=(self.car_x + self.car_width, self.car_y + self.car_height), color=(0, 255, 0))
+        cv2.rectangle(
+            self.game_window,
+            pt1=(self.car_x, self.car_y),
+            pt2=(self.car_x + self.car_width, self.car_y + self.car_height),
+            color=(0, 255, 0),
+        )
 
     def draw_obstacles(self):
         for obstacle in self.obstacles:
-            cv2.rectangle(self.game_window, pt1=(obstacle[0], obstacle[1]),
-                          pt2=(obstacle[0] + self.obstacle_width, obstacle[1] + self.obstacle_height),
-                          color=(0, 0, 255))
+            cv2.rectangle(
+                self.game_window,
+                pt1=(obstacle[0], obstacle[1]),
+                pt2=(
+                    obstacle[0] + self.obstacle_width,
+                    obstacle[1] + self.obstacle_height,
+                ),
+                color=(0, 0, 255),
+            )
 
     def move_obstacles(self):
-        self.obstacles = [(x, y + self.obstacle_speed) for x, y in self.obstacles if
-                          y + self.obstacle_speed < self.height]
+        self.obstacles = [
+            (x, y + self.obstacle_speed)
+            for x, y in self.obstacles
+            if y + self.obstacle_speed < self.height
+        ]
 
     def check_collision(self):
         for obstacle in self.obstacles:
             if (
-                    self.car_x < obstacle[0] + self.obstacle_width
-                    and self.car_x + self.car_width > obstacle[0]
-                    and self.car_y < obstacle[1] + self.obstacle_height
-                    and self.car_y + self.car_height > obstacle[1]
+                self.car_x < obstacle[0] + self.obstacle_width
+                and self.car_x + self.car_width > obstacle[0]
+                and self.car_y < obstacle[1] + self.obstacle_height
+                and self.car_y + self.car_height > obstacle[1]
             ):
                 return True
         return False
@@ -70,9 +95,9 @@ class CarDodgingGame:
 
     def handle_key_input(self, key):
         # Adjust the car's position based on the key input
-        if key & 0xFF == ord('a') and self.car_x > 0:
+        if key & 0xFF == ord("a") and self.car_x > 0:
             self.car_x -= self.STEP
-        elif key & 0xFF == ord('d') and self.car_x < self.width - self.car_width:
+        elif key & 0xFF == ord("d") and self.car_x < self.width - self.car_width:
             self.car_x += self.STEP
 
     def run(self):
@@ -97,12 +122,16 @@ class CarDodgingGame:
 
             hsv_frame = tools.bgr2hsv(frame)
 
-            color_mask, contours = detection.in_range_detect(hsv_frame, self.lower_bound, self.upper_bound)
+            color_mask, contours = detection.in_range_detect(
+                hsv_frame, self.lower_bound, self.upper_bound
+            )
 
             original = tools.bitwise_and(frame, mask=color_mask)
 
             if contours:
-                original = detection.draw_contours(original, contours, color=(255, 0, 0))
+                original = detection.draw_contours(
+                    original, contours, color=(255, 0, 0)
+                )
 
                 center_x, _ = detection.calculate_center(contours)
 
@@ -126,7 +155,7 @@ class CarDodgingGame:
             cv2.imshow("Car Dodging Game", self.game_window)
 
             key = cv2.waitKey(1)
-            if key & 0xFF == ord('q'):
+            if key & 0xFF == ord("q"):
                 break
             else:
                 self.handle_key_input(key)
