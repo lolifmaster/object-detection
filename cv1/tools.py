@@ -47,29 +47,29 @@ def pad(src, pad_width, mode="constant", constant_values=0):
 
     if mode == "constant":
         padded_src[
-            pad_width[0][0]: -pad_width[0][1], pad_width[1][0]: -pad_width[1][1]
+            pad_width[0][0] : -pad_width[0][1], pad_width[1][0] : -pad_width[1][1]
         ] = src
         padded_src[: pad_width[0][0], :] = constant_values
-        padded_src[-pad_width[0][1]:, :] = constant_values
+        padded_src[-pad_width[0][1] :, :] = constant_values
         padded_src[:, : pad_width[1][0]] = constant_values
-        padded_src[:, -pad_width[1][1]:] = constant_values
+        padded_src[:, -pad_width[1][1] :] = constant_values
 
     elif mode == "edge":
         padded_src[
-            pad_width[0][0]: -pad_width[0][1], pad_width[1][0]: -pad_width[1][1]
+            pad_width[0][0] : -pad_width[0][1], pad_width[1][0] : -pad_width[1][1]
         ] = src
-        padded_src[: pad_width[0][0], pad_width[1][0]: -pad_width[1][1]] = src[0]
-        padded_src[-pad_width[0][1]:, pad_width[1][0]: -pad_width[1][1]] = src[-1]
-        padded_src[pad_width[0][0]: -pad_width[0][1], : pad_width[1][0]] = src[
-                                                                           :, 0
-                                                                           ].reshape(-1, 1)
-        padded_src[pad_width[0][0]: -pad_width[0][1], -pad_width[1][1]:] = src[
-                                                                           :, -1
-                                                                           ].reshape(-1, 1)
+        padded_src[: pad_width[0][0], pad_width[1][0] : -pad_width[1][1]] = src[0]
+        padded_src[-pad_width[0][1] :, pad_width[1][0] : -pad_width[1][1]] = src[-1]
+        padded_src[pad_width[0][0] : -pad_width[0][1], : pad_width[1][0]] = src[
+            :, 0
+        ].reshape(-1, 1)
+        padded_src[pad_width[0][0] : -pad_width[0][1], -pad_width[1][1] :] = src[
+            :, -1
+        ].reshape(-1, 1)
         padded_src[: pad_width[0][0], : pad_width[1][0]] = src[0, 0]
-        padded_src[: pad_width[0][0], -pad_width[1][1]:] = src[0, -1]
-        padded_src[-pad_width[0][1]:, : pad_width[1][0]] = src[-1, 0]
-        padded_src[-pad_width[0][1]:, -pad_width[1][1]:] = src[-1, -1]
+        padded_src[: pad_width[0][0], -pad_width[1][1] :] = src[0, -1]
+        padded_src[-pad_width[0][1] :, : pad_width[1][0]] = src[-1, 0]
+        padded_src[-pad_width[0][1] :, -pad_width[1][1] :] = src[-1, -1]
 
     return padded_src
 
@@ -141,7 +141,7 @@ def filter_2d(src, kernel, mode="edge", constant_values=0, clip=True):
     for i in range(rows):
         for j in range(cols):
             output_image[i, j] = np.sum(
-                padded_image[i: i + k_rows, j: j + k_cols] * kernel
+                padded_image[i : i + k_rows, j : j + k_cols] * kernel
             )
 
     if clip:
@@ -222,7 +222,8 @@ def create_shape(shape_type: Shape, size: int):
                 [
                     [
                         0
-                        if (i - size // 2) ** 2 + (j - size // 2) ** 2 > (size // 2) ** 2
+                        if (i - size // 2) ** 2 + (j - size // 2) ** 2
+                        > (size // 2) ** 2
                         else 1
                         for j in range(size)
                     ]
@@ -260,10 +261,10 @@ def create_shape(shape_type: Shape, size: int):
 
 def bitwise_and(src: np.array, mask):
     """
-        Perform bitwise AND operation on the input image with a mask.
-        :param src:
-        :param mask:
-        :return:
+    Perform bitwise AND operation on the input image with a mask.
+    :param src:
+    :param mask:
+    :return:
 
 
     """
@@ -305,9 +306,9 @@ def in_range(src: np.array, lower_bound, upper_bound):
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
             if (
-                    lower_bound[0] <= src[i, j, 0] <= upper_bound[0]
-                    and lower_bound[1] <= src[i, j, 1] <= upper_bound[1]
-                    and lower_bound[2] <= src[i, j, 2] <= upper_bound[2]
+                lower_bound[0] <= src[i, j, 0] <= upper_bound[0]
+                and lower_bound[1] <= src[i, j, 1] <= upper_bound[1]
+                and lower_bound[2] <= src[i, j, 2] <= upper_bound[2]
             ):
                 mask[i, j] = 255
 

@@ -1,6 +1,7 @@
 from typing import Sequence
 from cv1 import tools
 import numpy as np
+
 # from cv1.tools import range
 from cv1.shapes import Shape
 
@@ -52,7 +53,7 @@ def median(src, kernel_size: Sequence[int]):
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
             dst[i, j] = np.median(
-                padded_src[i: i + kernel_size[0], j: j + kernel_size[1]]
+                padded_src[i : i + kernel_size[0], j : j + kernel_size[1]]
             )
 
     return dst
@@ -82,7 +83,7 @@ def gaussian(src, kernel_size: Sequence[int], sigma: float):
         for j in range(kernel_size[1]):
             kernel[i, j] = np.exp(
                 -((i - kernel_size[0] // 2) ** 2 + (j - kernel_size[1] // 2) ** 2)
-                / (2 * sigma ** 2)
+                / (2 * sigma**2)
             )
     kernel /= np.sum(kernel)
 
@@ -195,24 +196,24 @@ def bilateral(src, kernel_size: Sequence[int], sigma_s: float, sigma_r: float):
                 for l in range(kernel_size[1]):
                     kernel[k, l] = np.exp(
                         -(
-                                (k - kernel_size[0] // 2) ** 2
-                                + (l - kernel_size[1] // 2) ** 2
+                            (k - kernel_size[0] // 2) ** 2
+                            + (l - kernel_size[1] // 2) ** 2
                         )
-                        / (2 * sigma_s ** 2)
+                        / (2 * sigma_s**2)
                     ) * np.exp(
                         -((padded_src[i, j] - padded_src[i + k, j + l]) ** 2)
-                        / (2 * sigma_r ** 2)
+                        / (2 * sigma_r**2)
                     )
             kernel /= np.sum(kernel)
             dst[i, j] = np.sum(
-                kernel * padded_src[i: i + kernel_size[0], j: j + kernel_size[1]]
+                kernel * padded_src[i : i + kernel_size[0], j : j + kernel_size[1]]
             )
 
     return dst
 
 
 def erode(
-        src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
+    src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
     Apply erosion to the source image.
@@ -240,13 +241,13 @@ def erode(
                 match kernel_shape:
                     case Shape.RECT:
                         dst[i, j] = np.min(
-                            padded_dst[i: i + kernel_size, j: j + kernel_size]
+                            padded_dst[i : i + kernel_size, j : j + kernel_size]
                         )
                     case Shape.CROSS:
                         dst[i, j] = np.min(
                             [
-                                padded_dst[i: i + kernel_size, j + kernel_size // 2],
-                                padded_dst[i + kernel_size // 2, j: j + kernel_size],
+                                padded_dst[i : i + kernel_size, j + kernel_size // 2],
+                                padded_dst[i + kernel_size // 2, j : j + kernel_size],
                             ]
                         )
                     case _:
@@ -258,7 +259,7 @@ def erode(
 
 
 def dilate(
-        src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
+    src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
     Apply dilatation to the source image.
@@ -286,13 +287,13 @@ def dilate(
                 match kernel_shape:
                     case Shape.RECT:
                         dst[i, j] = np.max(
-                            padded_dst[i: i + kernel_size, j: j + kernel_size]
+                            padded_dst[i : i + kernel_size, j : j + kernel_size]
                         )
                     case Shape.CROSS:
                         dst[i, j] = np.max(
                             [
-                                padded_dst[i: i + kernel_size, j + kernel_size // 2],
-                                padded_dst[i + kernel_size // 2, j: j + kernel_size],
+                                padded_dst[i : i + kernel_size, j + kernel_size // 2],
+                                padded_dst[i + kernel_size // 2, j : j + kernel_size],
                             ]
                         )
                     case _:
@@ -304,7 +305,7 @@ def dilate(
 
 
 def opening(
-        src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
+    src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
     Apply opening to the source image.
@@ -327,7 +328,7 @@ def opening(
 
 
 def closing(
-        src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
+    src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
     Apply closing to the source image.

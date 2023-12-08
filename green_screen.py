@@ -3,15 +3,13 @@ import numpy as np
 from cv1 import detection, tools
 
 
-def green_screen_image(img, background_img, lower_bound, upper_bound):
+def green_screen_image(img, background_img, lower_green, upper_green):
     # Load the image
     image = cv2.imread(img)
     # Convert the image from BGR to HSV color space
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     # Create binary masks for the color range
-    color_mask = tools.in_range(
-        hsv_image, lower_bound, upper_bound
-    )
+    color_mask = tools.in_range(hsv_image, lower_green, upper_green)
     # Extract the foreground (object) from the frame
     foreground = tools.bitwise_and(image, mask=color_mask)
 
@@ -26,7 +24,7 @@ def green_screen_image(img, background_img, lower_bound, upper_bound):
     cv2.destroyAllWindows()
 
 
-def green_screen_realtime(lower_bound, upper_bound, *, background_img):
+def green_screen_realtime(lower_green, upper_green, *, background_img):
     # Initialize the webcam
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
@@ -39,11 +37,13 @@ def green_screen_realtime(lower_bound, upper_bound, *, background_img):
         # Convert the frame from BGR to HSV color space
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # Create binary masks for the color range
-        color_mask = tools.in_range(
-            hsv_frame, lower_bound, upper_bound
+        color_mask = tools.in_range(hsv_frame, lower_green, upper_green)
+        color_mask = cv2.morphologyEx(
+            color_mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=10
         )
-        color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=10)
-        color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=1)
+        color_mask = cv2.morphologyEx(
+            color_mask, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=1
+        )
         # Extract the foreground (object) from the frame
         foreground = tools.bitwise_and(frame, mask=color_mask)
 
@@ -55,9 +55,6 @@ def green_screen_realtime(lower_bound, upper_bound, *, background_img):
 
         # Display the result in real-time
         cv2.imshow("Green Screen ", foreground)
-
-
-
 
         # Break the loop if the 'q' key is pressed
         if cv2.waitKey(10) & 0xFF == ord("q"):

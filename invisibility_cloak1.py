@@ -22,16 +22,18 @@ def invisibility_cloak(lower_red, upper_red):
         # hsv_frame = cv2.bgr2hsv(frame)
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # Create binary masks for the two color ranges
-        color_mask = tools.in_range(
-            hsv_frame, lower_red, upper_red
-        )
+        color_mask = tools.in_range(hsv_frame, lower_red, upper_red)
         # removing noise from binary image , remove small bright spots (white regions)
         # color_mask = filters.opening(color_mask, kernel_size=3, iterations=1)
         # enlarge the boundaries of regions of foreground pixels (white regions)
         # color_mask = filters.dilate(color_mask, kernel_size=3, iterations=1)
 
-        color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=10)
-        color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=1)
+        color_mask = cv2.morphologyEx(
+            color_mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=10
+        )
+        color_mask = cv2.morphologyEx(
+            color_mask, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=1
+        )
 
         # Extract the cloak color from the frame
 
