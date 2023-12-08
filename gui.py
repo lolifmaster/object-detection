@@ -37,9 +37,7 @@ class ImageFilterApp(QWidget):
 
     def init_ui(self):
         self.image_label = QLabel(self)
-        self.image_label.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding
-        )
+        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.filter_combobox = QComboBox(self)
         for filter_data in self.filters:

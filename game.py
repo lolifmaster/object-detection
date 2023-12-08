@@ -2,8 +2,10 @@ import cv2
 import numpy as np
 import random
 from cv1 import tools, detection
-from game_utils import Taxi, Police, Camion , rgba2rgb
-import time 
+from game_utils import Taxi, Police, Camion, rgba2rgb
+import time
+
+
 class CarDodgingGame:
     """
     A simple car dodging game where the player has to dodge the obstacles by moving the car left or right using the
@@ -21,10 +23,21 @@ class CarDodgingGame:
     :param step: the step for moving the car
 
     """
-    def __init__(self, width=400, height=600, car_width=50, car_height=80, obstacle_width=40, obstacle_height=30,
-                 obstacle_speed=2, lower_bound=np.array([100, 50, 50]), upper_bound=np.array([130, 255, 255]), step: int = 20,
-                 use_camera : bool = True):
-        
+
+    def __init__(
+        self,
+        width=400,
+        height=600,
+        car_width=50,
+        car_height=80,
+        obstacle_width=40,
+        obstacle_height=30,
+        obstacle_speed=2,
+        lower_bound=np.array([100, 50, 50]),
+        upper_bound=np.array([130, 255, 255]),
+        step: int = 20,
+        use_camera: bool = True,
+    ):
         self.menu_window = None
         self.game_window = None
         self.width = width
@@ -38,21 +51,21 @@ class CarDodgingGame:
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-        self.STEP = step 
+        self.STEP = step
         self.car_x = width // 2 - car_width // 2
-        self.car_y = height - car_height - self.STEP -50
+        self.car_y = height - car_height - self.STEP - 50
 
         self.obstacles = []
 
         self.use_camera = use_camera
 
-        self.background = cv2.imread(r'assets/tunnel_road.jpg')
+        self.background = cv2.imread(r"assets/tunnel_road.jpg")
         self.background = cv2.resize(self.background, (width, height))
 
-        self.car_image = cv2.imread(r'assets/mc_car.png', cv2.IMREAD_UNCHANGED)
+        self.car_image = cv2.imread(r"assets/mc_car.png", cv2.IMREAD_UNCHANGED)
         self.car_image = cv2.resize(self.car_image, (car_width, car_height))
 
-        self.car_image=rgba2rgb(self.car_image)
+        self.car_image = rgba2rgb(self.car_image)
 
         self.taxi = Taxi()
         self.camion = Camion()
@@ -63,7 +76,7 @@ class CarDodgingGame:
         self.acceleration_factor = 0.001
         self.spawn_probability = 0.001
 
-        self.score = 0  
+        self.score = 0
 
     def draw_car(self):
         """
@@ -92,8 +105,6 @@ class CarDodgingGame:
         # draw the car image on the game window
         self.game_window[y1:y2, x1:x2, :] = self.car_image
 
-
-        
     def draw_obstacles(self):
         """
         Draw the obstacles on the game window.
@@ -101,19 +112,29 @@ class CarDodgingGame:
 
         for obstacle in self.obstacles:
             # extract obstacle information
-            obstacle_x, obstacle_y, obstacle_width, obstacle_height, obstacle_type = obstacle
+            (
+                obstacle_x,
+                obstacle_y,
+                obstacle_width,
+                obstacle_height,
+                obstacle_type,
+            ) = obstacle
 
             # load obstacle image and resize
             obstacle_image = cv2.imread(obstacle_type.image, cv2.IMREAD_UNCHANGED)
-            obstacle_image = cv2.resize(obstacle_image, (obstacle_width, obstacle_height))
+            obstacle_image = cv2.resize(
+                obstacle_image, (obstacle_width, obstacle_height)
+            )
 
             # convert RGBA to RGB
             obstacle_image = rgba2rgb(obstacle_image)
 
-
             # ensure the dimensions of the obstacle image match the specified region
             obstacle_image_height, obstacle_image_width, _ = obstacle_image.shape
-            if obstacle_image_height != obstacle_height or obstacle_image_width != obstacle_width:
+            if (
+                obstacle_image_height != obstacle_height
+                or obstacle_image_width != obstacle_width
+            ):
                 continue
 
             # update the game_window at the correct location
@@ -127,24 +148,34 @@ class CarDodgingGame:
             x2 = min(self.width, x2)
 
             # ensure the dimensions match
-            game_window_region_height, game_window_region_width, _ = self.game_window[y1:y2, x1:x2, :].shape
-        
+            game_window_region_height, game_window_region_width, _ = self.game_window[
+                y1:y2, x1:x2, :
+            ].shape
+
             # check if the dimensions still match (additional check)
-            if game_window_region_height != obstacle_height or game_window_region_width != obstacle_width:
+            if (
+                game_window_region_height != obstacle_height
+                or game_window_region_width != obstacle_width
+            ):
                 continue
 
             self.game_window[y1:y2, x1:x2, :] = obstacle_image
-
 
     def move_obstacles(self):
         """
         Move the obstacles down the game window.
         """
         new_obstacles = []
-        
+
         for obstacle in self.obstacles:
             # extract obstacle information
-            obstacle_x, obstacle_y, obstacle_width, obstacle_height, obstacle_type = obstacle
+            (
+                obstacle_x,
+                obstacle_y,
+                obstacle_width,
+                obstacle_height,
+                obstacle_type,
+            ) = obstacle
 
             # move the obstacle downward based on the obstacle speed
             obstacle_y += self.obstacle_speed
@@ -152,14 +183,22 @@ class CarDodgingGame:
             # check if the obstacle has passed the lower edge of the game window
             if obstacle_y > self.height:
                 # increase the score when the obstacle passes the lower fence
-                self.score += obstacle_type.score  
+                self.score += obstacle_type.score
 
             else:
                 # add the obstacle to the new_obstacles list if it is still within the game window
-                new_obstacles.append((obstacle_x, obstacle_y, obstacle_width, obstacle_height, obstacle_type))
+                new_obstacles.append(
+                    (
+                        obstacle_x,
+                        obstacle_y,
+                        obstacle_width,
+                        obstacle_height,
+                        obstacle_type,
+                    )
+                )
 
         self.obstacles = new_obstacles
-        
+
     def check_collision(self):
         """
         Check if the car has collided with any of the obstacles.
@@ -180,7 +219,6 @@ class CarDodgingGame:
         Generate a new obstacle at a random location.
         """
         if len(self.obstacles) < 3:
-            
             # choose a random obstacle type
             obstacle_type = random.choice([self.taxi, self.camion, self.police])
 
@@ -191,33 +229,43 @@ class CarDodgingGame:
             # generate a new obstacle at a random location along the width of the game window
             obstacle_x = random.randint(0, self.width - obstacle_width)
             obstacle_y = -obstacle_height
- 
+
             # check for collisions with existing obstacles
             if not any(
-                obstacle_x < x + w and x < obstacle_x + obstacle_width and
-                obstacle_y < y + h and y < obstacle_y + obstacle_height
+                obstacle_x < x + w
+                and x < obstacle_x + obstacle_width
+                and obstacle_y < y + h
+                and y < obstacle_y + obstacle_height
                 for x, y, w, h, _ in self.obstacles
             ):
-                #check free space for the car always available for the car to move 
-                if not any( 
-                    self.car_x < x + w and x < self.car_x + self.car_width and
-                    self.car_y < y + h and y < self.car_y + self.car_height
+                # check free space for the car always available for the car to move
+                if not any(
+                    self.car_x < x + w
+                    and x < self.car_x + self.car_width
+                    and self.car_y < y + h
+                    and y < self.car_y + self.car_height
                     for x, y, w, h, _ in self.obstacles
                 ):
-                    self.obstacles.append((obstacle_x, obstacle_y, obstacle_width, obstacle_height, obstacle_type))
-
+                    self.obstacles.append(
+                        (
+                            obstacle_x,
+                            obstacle_y,
+                            obstacle_width,
+                            obstacle_height,
+                            obstacle_type,
+                        )
+                    )
 
     def handle_key_input(self, key):
         """
         Handle the key input
         """
         # adjust the car's position based on the key input
-        if key == 81:  
+        if key & 0xFF == ord("a"):
             self.car_x = max(0, self.car_x - self.STEP)
-        elif key == 83:  
+        elif key & 0xFF == ord("d"):
             self.car_x = min(self.width - self.car_width, self.car_x + self.STEP)
 
-    
     def restart(self):
         """
         Restart the game.
@@ -231,17 +279,44 @@ class CarDodgingGame:
         """
         for i in range(3, 0, -1):
             self.menu_window = self.background.copy()
-            cv2.putText(self.menu_window, "Car Dodging Game", (self.width // 2 - 130, self.height // 2 - 100),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-            cv2.putText(self.menu_window, f"Score: {self.score}", (self.width // 2 - 50, self.height // 2 - 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            cv2.putText(self.menu_window, f"Time: {int(self.current_time)}", (self.width // 2 - 50, self.height // 2),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            cv2.putText(self.menu_window, f"Starting in {i}...", (self.width // 2 - 60, self.height // 2 + 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(
+                self.menu_window,
+                "Car Dodging Game",
+                (self.width // 2 - 130, self.height // 2 - 100),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2,
+            )
+            cv2.putText(
+                self.menu_window,
+                f"Score: {self.score}",
+                (self.width // 2 - 50, self.height // 2 - 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
+            cv2.putText(
+                self.menu_window,
+                f"Time: {int(self.current_time)}",
+                (self.width // 2 - 50, self.height // 2),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
+            cv2.putText(
+                self.menu_window,
+                f"Starting in {i}...",
+                (self.width // 2 - 60, self.height // 2 + 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
             cv2.imshow("Car Dodging Game Menu", self.menu_window)
             cv2.waitKey(1000)
-
 
     def run(self):
         """
@@ -251,21 +326,28 @@ class CarDodgingGame:
         while True:
             # show the start screen with a countdown when pressing 's'
             self.menu_window = self.background.copy()
-            cv2.putText(self.menu_window, "Press 's' to start", (self.width // 2 - 120, self.height // 2),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(
+                self.menu_window,
+                "Press 's' to start",
+                (self.width // 2 - 120, self.height // 2),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
             cv2.imshow("Car Dodging Game Menu", self.menu_window)
 
             key = cv2.waitKey(1)
-            if key & 0xFF == ord('q'):
+            if key & 0xFF == ord("q"):
                 break
-            elif key & 0xFF == ord('s'):
+            elif key & 0xFF == ord("s"):
                 self.start_countdown()
                 break
 
         cap = None
         # start the game with camera if enabled
-        if self.use_camera :
-            cap = cv2.VideoCapture(0) 
+        if self.use_camera:
+            cap = cv2.VideoCapture(0)
             desired_width = 300
             desired_height = 150
 
@@ -286,16 +368,20 @@ class CarDodgingGame:
 
             # put the background on the game window
             self.game_window = self.background.copy()
-            
+
             if self.use_camera:
                 hsv_frame = tools.bgr2hsv(frame)
 
-                color_mask, contours = detection.in_range_detect(hsv_frame, self.lower_bound, self.upper_bound)
+                color_mask, contours = detection.in_range_detect(
+                    hsv_frame, self.lower_bound, self.upper_bound
+                )
 
                 original = tools.bitwise_and(frame, mask=color_mask)
 
                 if contours:
-                    original = detection.draw_contours(original, contours, color=(255, 0, 0))
+                    original = detection.draw_contours(
+                        original, contours, color=(255, 0, 0)
+                    )
 
                     center_x, _ = detection.calculate_center(contours)
 
@@ -310,7 +396,7 @@ class CarDodgingGame:
 
             # adjust obstacle speed and spawn probability based on game time
             self.obstacle_speed += self.current_time * self.acceleration_factor
-            self.spawn_probability += self.current_time * 0.0001 
+            self.spawn_probability += self.current_time * 0.0001
 
             self.move_obstacles()
 
@@ -320,13 +406,20 @@ class CarDodgingGame:
 
             self.draw_car()
             self.draw_obstacles()
-            
-            cv2.putText(self.game_window, f"Score: {self.score}", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+            cv2.putText(
+                self.game_window,
+                f"Score: {self.score}",
+                (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2,
+            )
 
             if self.use_camera:
                 cv2.imshow("final", original)
-                cv2.imshow("image",frame)
+                cv2.imshow("image", frame)
                 cv2.imshow("Car Dodging Game", self.game_window)
             else:
                 cv2.imshow("Car Dodging Game", self.game_window)
@@ -343,17 +436,52 @@ class CarDodgingGame:
 
         # update the menu window with the final score
         self.menu_window = self.background.copy()
-        cv2.putText(self.menu_window, "Game Over!", (self.width // 2 - 50, self.height // 2 - 100),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.putText(self.menu_window, f"Score: {self.score}", (self.width // 2 - 50, self.height // 2 - 50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        cv2.putText(self.menu_window, f"Time: {int(self.current_time)}", (self.width // 2 - 50, self.height // 2),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        cv2.putText(self.menu_window, "Press 'p' to play again", (self.width // 2 - 120, self.height // 2 + 50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        cv2.putText(self.menu_window, "Press 'q' to quit", (self.width // 2 - 80, self.height // 2 + 100),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        
+        cv2.putText(
+            self.menu_window,
+            "Game Over!",
+            (self.width // 2 - 50, self.height // 2 - 100),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (255, 255, 255),
+            2,
+        )
+        cv2.putText(
+            self.menu_window,
+            f"Score: {self.score}",
+            (self.width // 2 - 50, self.height // 2 - 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            2,
+        )
+        cv2.putText(
+            self.menu_window,
+            f"Time: {int(self.current_time)}",
+            (self.width // 2 - 50, self.height // 2),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            2,
+        )
+        cv2.putText(
+            self.menu_window,
+            "Press 'p' to play again",
+            (self.width // 2 - 120, self.height // 2 + 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            2,
+        )
+        cv2.putText(
+            self.menu_window,
+            "Press 'q' to quit",
+            (self.width // 2 - 80, self.height // 2 + 100),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            2,
+        )
+
         cv2.imshow("Car Dodging Game Menu", self.menu_window)
 
         # Wait for 'p' key to restart the game
@@ -365,8 +493,7 @@ class CarDodgingGame:
                 break
 
 
-
 if __name__ == "__main__":
-    use_camera = True  
+    use_camera = True
     game = CarDodgingGame(use_camera=use_camera)
     game.run()
