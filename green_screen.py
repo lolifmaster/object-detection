@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from cv1 import detection, tools
 
+
 def green_screen_realtime(lower_bound, upper_bound):
     # Initialize the webcam
     cap = cv2.VideoCapture(0)
@@ -18,19 +19,22 @@ def green_screen_realtime(lower_bound, upper_bound):
         # Convert the frame from BGR to HSV color space
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # Create binary masks for the color range
-        color_mask, contour = detection.in_range_detect(hsv_frame, lower_bound, upper_bound)
+        color_mask, contour = detection.in_range_detect(
+            hsv_frame, lower_bound, upper_bound
+        )
         # Extract the foreground (object) from the frame
         foreground = tools.bitwise_and(frame, mask=color_mask)
         # Display the result in real-time
         cv2.imshow("Green Screen ", foreground)
 
         # Break the loop if the 'q' key is pressed
-        if cv2.waitKey(10) & 0xFF == ord('q'):
+        if cv2.waitKey(10) & 0xFF == ord("q"):
             break
 
     # Release the webcam and close all windows
     cap.release()
     cv2.destroyAllWindows()
+
 
 # Specify the target color range in HSV
 lower_bound = np.array([0, 120, 70])
