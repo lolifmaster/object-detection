@@ -36,8 +36,9 @@ class CarDodgingGame:
         lower_bound=np.array([100, 50, 50]),
         upper_bound=np.array([130, 255, 255]),
         step: int = 20,
-        use_camera: bool = True,
+        camera: bool = True,
     ):
+        self.cap = None
         self.menu_window = None
         self.game_window = None
         self.width = width
@@ -57,7 +58,7 @@ class CarDodgingGame:
 
         self.obstacles = []
 
-        self.use_camera = use_camera
+        self.use_camera = camera
 
         self.background = cv2.imread(r"assets/tunnel_road.jpg")
         self.background = cv2.resize(self.background, (width, height))
@@ -270,7 +271,7 @@ class CarDodgingGame:
         """
         Restart the game.
         """
-        self.__init__(use_camera=self.use_camera)
+        self.__init__(camera=self.use_camera)
         self.run()
 
     def start_countdown(self):
@@ -318,6 +319,11 @@ class CarDodgingGame:
             cv2.imshow("Car Dodging Game Menu", self.menu_window)
             cv2.waitKey(1000)
 
+    def cleanup(self):
+        cv2.destroyAllWindows()
+        if self.cap is not None:
+            self.cap.release()
+
     def run(self):
         """
         Run the game.
@@ -335,33 +341,46 @@ class CarDodgingGame:
                 (255, 255, 255),
                 2,
             )
+            cv2.putText(
+                self.menu_window,
+                "Press 'q' to quit",
+                (self.width // 2 - 80, self.height // 2 + 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
+
             cv2.imshow("Car Dodging Game Menu", self.menu_window)
 
             key = cv2.waitKey(1)
             if key & 0xFF == ord("q"):
-                break
+                cv2.destroyAllWindows()
+                return
             elif key & 0xFF == ord("s"):
                 self.start_countdown()
                 break
 
-        cap = None
+        self.cap = None
         # start the game with camera if enabled
         if self.use_camera:
-            cap = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(0)
             desired_width = 300
             desired_height = 150
 
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
-            if self.use_camera and not cap.isOpened():
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
+            if self.use_camera and not self.cap.isOpened():
                 print("Error: Could not open camera.")
+                self.cleanup()
                 return
 
         while True:
             if self.use_camera:
-                ret, frame = cap.read()
+                ret, frame = self.cap.read()
                 if not ret:
                     print("Failed to capture frame")
+                    self.cleanup()
                     break
 
                 frame = cv2.flip(frame, 1)
@@ -430,8 +449,8 @@ class CarDodgingGame:
             else:
                 self.handle_key_input(key)
 
-        if cap is not None:
-            cap.release()
+        if self.cap is not None:
+            self.cap.release()
         cv2.destroyWindow("Car Dodging Game")
 
         # update the menu window with the final score
@@ -490,10 +509,11 @@ class CarDodgingGame:
             if key & 0xFF == ord("p"):
                 self.restart()
             elif key & 0xFF == ord("q"):
+                self.cleanup()
                 break
 
 
 if __name__ == "__main__":
     use_camera = True
-    game = CarDodgingGame(use_camera=use_camera)
+    game = CarDodgingGame(camera=use_camera)
     game.run()

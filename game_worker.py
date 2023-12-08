@@ -6,8 +6,8 @@ class GameHandler(QThread):
     game_finished = pyqtSignal()
 
     def __init__(self, parent=None):
-        super(GameHandler, self).__init__(parent)
-        self.game = CarDodgingGame()
+        super().__init__(parent)
+        self.game = CarDodgingGame(camera=True)
 
     def run(self):
         self.game.run()
