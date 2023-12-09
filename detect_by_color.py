@@ -10,22 +10,17 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     # Read the image
     image = cv2.imread(image)
 
-    # Convert the image from BGR to HSV color space
-    # hsv_image = tools.bgr2hsv(image)
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    # Define the lower and upper bounds of the target color in HSV
     lower_bound = np.array(target_color_lower)
     upper_bound = np.array(target_color_upper)
 
-    # Create a binary mask where pixels within the color range are white and others are black
-    color_mask, contour = detection.in_range_detect(hsv_image, lower_bound, upper_bound)
-    original = tools.bitwise_and(image, mask=color_mask)
-
-    # final = detection.draw_contours(original, contour)
-    final = cv2.rectangle(
-        original, (contour[0], contour[1]), (contour[2], contour[3]), (0, 255, 0), 2
-    )
-    # Display the original image and the result
+    _, contour = detection.in_range_detect(
+        hsv_image, lower_bound, upper_bound)
+    final = image.copy()
+    if contour:
+        cv2.rectangle(
+            final, (contour[0], contour[1]), (contour[2], contour[3]), (0, 255, 0), 2
+        )
     cv2.imshow("Original Image", image)
     cv2.imshow("Detected Objects", final)
     cv2.waitKey(0)
