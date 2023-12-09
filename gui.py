@@ -16,7 +16,12 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
 from cv1 import tools
-from game_worker import GameHandler
+from workers import (
+    GameHandler,
+    InvisibilityCloakThread,
+    GreenScreenThread,
+    ObjectDetectionThread,
+)
 from image_processor import FilterInputDialog, FILTERS
 from cv1 import (
     green_screen,
@@ -24,6 +29,7 @@ from cv1 import (
     detect_objects_by_color_real_time,
     invisibility_cloak,
 )
+from multiprocessing import Process
 
 
 class ImageFilterApp(QWidget):
@@ -40,6 +46,9 @@ class ImageFilterApp(QWidget):
         self.filter_combobox = None
         self.original_image = None
         self.game_thread = None
+        self.invisibility_cloak_thread = None
+        self.green_screen_thread = None
+        self.object_detection_thread = None
         self.original_image_path = None
         self.filters = FILTERS
         self.init_ui()
@@ -62,7 +71,7 @@ class ImageFilterApp(QWidget):
         self.game_button.clicked.connect(self.start_game_thread)
 
         self.detect_button = QPushButton("Detect Object", self)
-        self.detect_button.clicked.connect(detect_objects_by_color_real_time)
+        self.detect_button.clicked.connect(self.apply_object_detection)
 
         self.green_screen_button = QPushButton("Green Screen", self)
         self.green_screen_button.clicked.connect(self.apply_green_screen_real_time)
@@ -163,18 +172,24 @@ class ImageFilterApp(QWidget):
         self.image_label.setScaledContents(True)
 
     def apply_invisibility_cloak(self):
-        invisibility_cloak(
+        self.invisibility_cloak_thread = InvisibilityCloakThread(
             lower_red=[0, 120, 70],
             upper_red=[10, 255, 255],
             background_img=self.original_image_path,
         )
+        self.invisibility_cloak_thread.start()
 
     def apply_green_screen_real_time(self):
-        green_screen_realtime(
+        self.green_screen_thread = GreenScreenThread(
             lower_green=[0, 120, 70],
             upper_green=[10, 255, 255],
             background_img=self.original_image_path,
         )
+        self.green_screen_thread.start()
+
+    def apply_object_detection(self):
+        self.object_detection_thread = ObjectDetectionThread()
+        self.object_detection_thread.start()
 
     def start_game_thread(self):
         if self.game_thread is not None and self.game_thread.isRunning():

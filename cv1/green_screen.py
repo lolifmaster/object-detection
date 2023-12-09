@@ -63,14 +63,15 @@ def green_screen_realtime(*, lower_green=None, upper_green=None, background_img=
         foreground = tools.bitwise_and(frame, mask=color_mask)
 
         # put a background image
-        current_background = tools.bitwise_and(background, mask=tools.bitwise_not(color_mask))
+        current_background = tools.bitwise_and(
+            background, mask=tools.bitwise_not(color_mask)
+        )
         foreground = tools.add_weighted(foreground, 1, current_background, 1, 0)
 
         # Display the result in real-time
         cv2.imshow("Green Screen ", foreground)
 
-        # Break the loop if the 'q' key is pressed
-        if cv2.waitKey(10) & 0xFF == ord("q"):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
     # Release the webcam and close all windows
