@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from cv1 import detection
+import detection
 
 
 def detect_objects_by_color(image, target_color_lower, target_color_upper):
@@ -47,8 +47,8 @@ def detect_objects_by_color_upgraded(image, target_color_lower, target_color_upp
 
 
 if __name__ == "__main__":
-    detect_objects_by_color(
-        image="data/ppp.jpg",
+    detect_objects_by_color_upgraded(
+        image="data/oranges.jpg",
         target_color_lower=[0, 120, 70],
         target_color_upper=[10, 255, 255],
     )
