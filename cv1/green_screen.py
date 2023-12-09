@@ -63,7 +63,9 @@ def green_screen_realtime(*, lower_green=None, upper_green=None, background_img=
         foreground = tools.bitwise_and(frame, mask=color_mask)
 
         # put a background image
-        current_background = tools.bitwise_and(background, mask=tools.bitwise_not(color_mask))
+        current_background = tools.bitwise_and(
+            background, mask=tools.bitwise_not(color_mask)
+        )
         foreground = tools.add_weighted(foreground, 1, current_background, 1, 0)
 
         # Display the result in real-time
