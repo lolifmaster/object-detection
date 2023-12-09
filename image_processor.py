@@ -16,7 +16,7 @@ from cv1.filters import (
     edge_detection,
     sharpen,
     emboss,
-    bilateral,
+    sobel,
     opening,
     closing,
     erode,
@@ -37,6 +37,9 @@ class FilterInputDialog(QDialog):
             if argument_name == "kernel_shape":
                 input_widget = QComboBox(self)
                 input_widget.addItems(["rect", "cross"])
+            elif argument_name == "direction":
+                input_widget = QComboBox(self)
+                input_widget.addItems(["x", "y", "xy"])
             else:
                 input_widget = QLineEdit(self)
             error_label = QLabel(self)
@@ -57,7 +60,7 @@ class FilterInputDialog(QDialog):
     def validate_inputs(self):
         for argument_name, input_widget in self.input_widgets.items():
             error_label = self.error_labels[argument_name]
-            if argument_name == "kernel_shape":
+            if argument_name in ["kernel_shape", "direction"]:
                 # No need to check for emptiness in a combo box
                 error_label.clear()
             elif input_widget.text().strip() == "":
@@ -74,6 +77,10 @@ class FilterInputDialog(QDialog):
                 argument_values[argument_name] = Shape(
                     self.input_widgets[argument_name].currentText()
                 )
+            elif argument_name == "direction":
+                argument_values[argument_name] = self.input_widgets[
+                    argument_name
+                ].currentText()
             else:
                 try:
                     argument_values[argument_name] = ast.literal_eval(
@@ -101,28 +108,32 @@ FILTERS = [
     {"name": "Sharpen Filter", "function": sharpen, "arguments": []},
     {"name": "Emboss Filter", "function": emboss, "arguments": []},
     {
-        "name": "Bilateral Filter",
-        "function": bilateral,
-        "arguments": ["kernel_size", "sigma_s", "sigma_r"],
+        "name": "Sobel Filer",
+        "function": sobel,
+        "arguments": ["direction"],
+        "direction": ["x", "y", "xy"],
     },
     {
-        "name": "Opening",
+        "name": "Opening Filter",
         "function": opening,
         "arguments": ["kernel_size", "iterations", "kernel_shape"],
     },
     {
-        "name": "Closing",
+        "name": "Closing Filter",
         "function": closing,
         "arguments": ["kernel_size", "iterations", "kernel_shape"],
+        "kernel_shape": ["rect", "cross"],
     },
     {
-        "name": "Erosion",
+        "name": "Erosion Filter",
         "function": erode,
         "arguments": ["kernel_size", "iterations", "kernel_shape"],
+        "kernel_shape": ["rect", "cross"],
     },
     {
-        "name": "Dilation",
+        "name": "Dilation Filter",
         "function": dilate,
         "arguments": ["kernel_size", "iterations", "kernel_shape"],
+        "kernel_shape": ["rect", "cross"],
     },
 ]

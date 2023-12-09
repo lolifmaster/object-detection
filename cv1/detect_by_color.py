@@ -47,6 +47,8 @@ def detect_objects_by_color_upgraded(image, target_color_lower, target_color_upp
 
 
 if __name__ == "__main__":
-    image_path = "data/oranges.jpg"
-
-    detect_objects_by_color_upgraded(image_path, [5, 50, 50], [15, 255, 255])
+    detect_objects_by_color(
+        image="data/ppp.jpg",
+        target_color_lower=[0, 120, 70],
+        target_color_upper=[10, 255, 255],
+    )

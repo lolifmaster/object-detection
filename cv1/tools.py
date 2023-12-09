@@ -96,7 +96,9 @@ def clip_array(array, min_value, max_value):
     return array
 
 
-def filter_2d(src, kernel, mode="edge", constant_values=0, clip=True):
+def filter_2d(
+    src, kernel, mode="edge", constant_values=0, clip=True, *, dtype=np.uint8
+):
     """
     Apply a 2D filter to the source image.
 
@@ -106,6 +108,7 @@ def filter_2d(src, kernel, mode="edge", constant_values=0, clip=True):
         mode (str): The padding mode. Can be 'constant', 'edge'.
         constant_values (int): The constant value to use if mode='constant'.
         clip (bool): Whether to clip the output image to [0, 255].
+        dtype (type): The data type of the output image.
 
     Returns:
         numpy.ndarray: The filtered image.
@@ -147,7 +150,7 @@ def filter_2d(src, kernel, mode="edge", constant_values=0, clip=True):
     if clip:
         output_image = clip_array(output_image, 0, 255)
 
-    return output_image.astype(np.uint8)
+    return output_image.astype(dtype)
 
 
 def bgr2hsv(src):
@@ -389,8 +392,6 @@ def add_weighted(img1, alpha, img2, beta, gamma):
 
     if img1.shape != img2.shape:
         raise ValueError("img1 and img2 should have the same shape")
-
-    result = np.zeros_like(img1, dtype=np.uint8)
 
     result = alpha * img1 + beta * img2 + gamma
 
