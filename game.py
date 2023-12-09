@@ -33,8 +33,8 @@ class CarDodgingGame:
         obstacle_width=40,
         obstacle_height=30,
         obstacle_speed=2,
-        lower_bound=np.array([100, 50, 50]),
-        upper_bound=np.array([130, 255, 255]),
+        lower_bound=np.array([100, 120, 70]),
+        upper_bound=np.array([180, 255, 255]),
         step: int = 20,
         camera: bool = True,
     ):
@@ -390,18 +390,22 @@ class CarDodgingGame:
             if self.use_camera:
                 hsv_frame = tools.bgr2hsv(frame)
 
-                color_mask, contours = detection.in_range_detect(
+                color_mask, contour = detection.in_range_detect(
                     hsv_frame, self.lower_bound, self.upper_bound
                 )
 
                 original = tools.bitwise_and(frame, mask=color_mask)
 
-                if contours:
-                    original = detection.draw_contours(
-                        original, contours, color=(255, 0, 0)
+                if contour:
+                    original = cv2.rectangle(
+                        original,
+                        (contour[0], contour[1]),
+                        (contour[2], contour[3]),
+                        (0, 255, 0),
+                        2,
                     )
 
-                    center_x, _ = detection.calculate_center(contours)
+                    center_x, _ = detection.calculate_center(contour)
 
                     if center_x is not None:
                         self.car_x = center_x
@@ -513,6 +517,5 @@ class CarDodgingGame:
 
 
 if __name__ == "__main__":
-    use_camera = False
-    game = CarDodgingGame(camera=use_camera)
+    game = CarDodgingGame(camera=True)
     game.run()

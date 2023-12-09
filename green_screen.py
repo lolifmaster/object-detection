@@ -2,8 +2,14 @@ import cv2
 import numpy as np
 from cv1 import tools
 
+# Specify the target color range in HSV
+lower_bound = np.array([0, 120, 70])
+upper_bound = np.array([180, 255, 255])
 
-def green_screen_image(img, background_img, lower_green, upper_green):
+
+def green_screen_image(
+    img, background_img, lower_green=lower_bound, upper_green=upper_bound
+):
     # Load the image
     image = cv2.imread(img)
     # Convert the image from BGR to HSV color space
@@ -65,9 +71,8 @@ def green_screen_realtime(lower_green, upper_green, *, background_img):
     cv2.destroyAllWindows()
 
 
-# Specify the target color range in HSV
-lower_bound = np.array([0, 120, 70])
-upper_bound = np.array([180, 255, 255])
-
 green_screen_realtime(lower_bound, upper_bound, background_img="data/orange.png")
-# green_screen_image("data/ppp.png", "data/orange.png", lower_bound, upper_bound)
+
+
+if __name__ == "__main__":
+    green_screen_image("data/ppp.png", "data/orange.png", lower_bound, upper_bound)
