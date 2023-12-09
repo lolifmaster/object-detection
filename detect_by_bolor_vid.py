@@ -17,14 +17,15 @@ def detect_objects_by_color_rt(target_color_lower, target_color_upper):
         lower_bound = np.array(target_color_lower)
 
         # Create a binary mask where pixels within the color range are white and others are black
-        _, contour = detection.in_range_detect(
-            hsv_frame, lower_bound, upper_bound
-        )
+        _, contour = detection.in_range_detect(hsv_frame, lower_bound, upper_bound)
 
         if contour:
             cv2.rectangle(
-                frame, (contour[0], contour[1]), (contour[2],
-                                                  contour[3]), (0, 255, 0), 2
+                frame,
+                (contour[0], contour[1]),
+                (contour[2], contour[3]),
+                (0, 255, 0),
+                2,
             )
 
         cv2.imshow("color detection", frame)

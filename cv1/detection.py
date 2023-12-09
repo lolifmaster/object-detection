@@ -47,9 +47,9 @@ def in_range_detect(image, lower_bound, upper_bound):
 
             # Check if the pixel values are within the specified range for each channel
             if (
-                    lower_bound_b <= h <= upper_bound_b
-                    and lower_bound_g <= s <= upper_bound_g
-                    and lower_bound_r <= v <= upper_bound_r
+                lower_bound_b <= h <= upper_bound_b
+                and lower_bound_g <= s <= upper_bound_g
+                and lower_bound_r <= v <= upper_bound_r
             ):
                 mask[y, x] = 255  # Set to 255 if within range
 

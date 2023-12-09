@@ -113,15 +113,14 @@ class ImageFilterApp(QWidget):
                 result_image = selected_filter["function"](
                     test_image, **argument_values
                 )
+            else:
+                return
 
-                # Display the result image
-                self.display_image(result_image)
         else:
             # Apply the selected filter to the original image without arguments
             result_image = selected_filter["function"](test_image)
-
-            # Display the result image
-            self.display_image(result_image)
+        # Display the result image
+        self.display_image(result_image)
 
     def show_error_message(self, message):
         error_dialog = QMessageBox(self)

@@ -14,8 +14,7 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     lower_bound = np.array(target_color_lower)
     upper_bound = np.array(target_color_upper)
 
-    _, contour = detection.in_range_detect(
-        hsv_image, lower_bound, upper_bound)
+    _, contour = detection.in_range_detect(hsv_image, lower_bound, upper_bound)
     final = image.copy()
     if contour:
         cv2.rectangle(
