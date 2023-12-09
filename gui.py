@@ -57,8 +57,10 @@ class ImageFilterApp(QWidget):
 
     def init_ui(self):
         self.image_label = QLabel(self)
-        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.image_label.setAlignment(Qt.AlignCenter)  # Align image in the center
+        self.image_label.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # Align image in the center
+        self.image_label.setAlignment(Qt.AlignCenter)
 
         self.filter_combobox = QComboBox(self)
         for filter_data in self.filters:
@@ -80,7 +82,8 @@ class ImageFilterApp(QWidget):
         self.detect_object_button.clicked.connect(self.detect_objects_by_color)
 
         self.green_screen_button = QPushButton("Green Screen", self)
-        self.green_screen_button.clicked.connect(self.apply_green_screen_real_time)
+        self.green_screen_button.clicked.connect(
+            self.apply_green_screen_real_time)
 
         self.invisibility_cloak = QPushButton("Invisibility Cloak", self)
         self.invisibility_cloak.clicked.connect(self.apply_invisibility_cloak)
@@ -111,7 +114,8 @@ class ImageFilterApp(QWidget):
         vbox.addWidget(self.image_label, 1)
 
         # Add spacer to push widgets to the top
-        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum,
+                             QSizePolicy.Expanding)
         vbox.addItem(spacer)
 
         self.setWindowTitle("Image Filter App")
@@ -137,7 +141,8 @@ class ImageFilterApp(QWidget):
     def show_filter_input_dialog(self):
         # Check if an image is loaded
         if self.original_image is None:
-            self.show_error_message("Please upload an image before applying a filter.")
+            self.show_error_message(
+                "Please upload an image before applying a filter.")
             return
 
         selected_filter_index = self.filter_combobox.currentIndex()
@@ -155,7 +160,8 @@ class ImageFilterApp(QWidget):
 
         # Show the input dialog only if the selected filter has arguments
         if selected_filter["arguments"]:
-            input_dialog = FilterInputDialog(selected_filter["arguments"], self)
+            input_dialog = FilterInputDialog(
+                selected_filter["arguments"], self)
             result = input_dialog.exec_()
 
             if result == QDialog.Accepted:
@@ -196,7 +202,8 @@ class ImageFilterApp(QWidget):
         # Convert the image data to a format that can be displayed with QPixmap
         height, width, _ = image_data.shape
         bytes_per_line = width * 3
-        image = QImage(image_data, width, height, bytes_per_line, QImage.Format_BGR888)
+        image = QImage(image_data, width, height,
+                       bytes_per_line, QImage.Format_BGR888)
         pixmap = QPixmap(image)
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
@@ -223,7 +230,8 @@ class ImageFilterApp(QWidget):
 
     def detect_objects_by_color(self):
         if self.original_image_path is None:
-            self.show_error_message("Please upload an image before detecting...")
+            self.show_error_message(
+                "Please upload an image before detecting...")
             return
         detected_img = detect_objects_by_color_upgraded(
             image=self.original_image_path,
@@ -242,13 +250,8 @@ class ImageFilterApp(QWidget):
         self.game_thread.start()
 
     def on_game_finished(self):
-        QMessageBox.information(self, "Game Finished", "The game has finished!")
+        QMessageBox.information(self, "Game Finished",
+                                "The game has finished!")
         self.game_thread.quit()
         self.game_thread = None
         self.game_button.setEnabled(True)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ex = ImageFilterApp()
-    sys.exit(app.exec_())
