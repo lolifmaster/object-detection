@@ -15,8 +15,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
-from cv1 import Shape, tools
-from game import CarDodgingGame
+from cv1 import tools
 from game_worker import GameHandler
 from image_processor import FilterInputDialog, FILTERS
 
@@ -62,7 +61,8 @@ class ImageFilterApp(QWidget):
         hbox.addWidget(self.game_button)
         vbox.addLayout(hbox)
 
-        vbox.addWidget(self.image_label, 1)  # Add stretch factor to the image_label
+        # Add stretch factor to the image_label
+        vbox.addWidget(self.image_label, 1)
 
         # Add spacer to push widgets to the top
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)

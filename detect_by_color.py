@@ -19,12 +19,12 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
 
     # Create a binary mask where pixels within the color range are white and others are black
     color_mask, contour = detection.in_range_detect(hsv_image, lower_bound, upper_bound)
-
     original = tools.bitwise_and(image, mask=color_mask)
 
-    # Draw a rectangle around the detected object
-    final = detection.draw_contours(original, contour, color=(0, 0, 255))
-
+    # final = detection.draw_contours(original, contour)
+    final = cv2.rectangle(
+        original, (contour[0], contour[1]), (contour[2], contour[3]), (0, 255, 0), 2
+    )
     # Display the original image and the result
     cv2.imshow("Original Image", image)
     cv2.imshow("Detected Objects", final)

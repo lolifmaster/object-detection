@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from cv1 import detection, tools, filters
+from cv1 import tools
 
 
 def invisibility_cloak(lower_red, upper_red):

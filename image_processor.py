@@ -1,7 +1,5 @@
-import cv2
-from cv1 import Shape, tools
+from cv1 import Shape
 from PyQt5.QtWidgets import (
-    QWidget,
     QLabel,
     QPushButton,
     QComboBox,

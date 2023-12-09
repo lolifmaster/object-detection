@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from cv1 import detection, tools
+from cv1 import tools
 
 
 def green_screen_image(img, background_img, lower_green, upper_green):
