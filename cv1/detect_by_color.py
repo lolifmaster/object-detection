@@ -26,7 +26,9 @@ def detect_objects_by_color(image, target_color_lower, target_color_upper):
     cv2.destroyAllWindows()
 
 
-# Specify the path to your image and the target color range in HSV
-image_path = "data/orange.png"
-
-detect_objects_by_color(image_path, [5, 50, 50], [15, 255, 255])
+if __name__ == "__main__":
+    detect_objects_by_color(
+        image="data/ppp.jpg",
+        target_color_lower=[0, 120, 70],
+        target_color_upper=[10, 255, 255],
+    )

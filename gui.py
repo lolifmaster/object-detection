@@ -18,12 +18,21 @@ import cv2
 from cv1 import tools
 from game_worker import GameHandler
 from image_processor import FilterInputDialog, FILTERS
+from cv1 import (
+    green_screen,
+    green_screen_realtime,
+    detect_objects_by_color_real_time,
+    invisibility_cloak,
+)
 
 
 class ImageFilterApp(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.invisibility_cloak = None
+        self.green_screen_button = None
+        self.detect_button = None
         self.game_button = None
         self.apply_button = None
         self.upload_button = None
@@ -31,6 +40,7 @@ class ImageFilterApp(QWidget):
         self.filter_combobox = None
         self.original_image = None
         self.game_thread = None
+        self.original_image_path = None
         self.filters = FILTERS
         self.init_ui()
 
@@ -51,13 +61,24 @@ class ImageFilterApp(QWidget):
         self.game_button = QPushButton("Play Game", self)
         self.game_button.clicked.connect(self.start_game_thread)
 
+        self.detect_button = QPushButton("Detect Object", self)
+        self.detect_button.clicked.connect(detect_objects_by_color_real_time)
+
+        self.green_screen_button = QPushButton("Green Screen", self)
+        self.green_screen_button.clicked.connect(self.apply_green_screen_real_time)
+
+        self.invisibility_cloak = QPushButton("Invisibility Cloak", self)
+        self.invisibility_cloak.clicked.connect(self.apply_invisibility_cloak)
+
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.upload_button)
-
+        vbox.addWidget(self.filter_combobox)
+        vbox.addWidget(self.apply_button)
         # Improved layout using QHBoxLayout
         hbox = QHBoxLayout()
-        hbox.addWidget(self.filter_combobox)
-        hbox.addWidget(self.apply_button)
+        hbox.addWidget(self.detect_button)
+        hbox.addWidget(self.green_screen_button)
+        hbox.addWidget(self.invisibility_cloak)
         hbox.addWidget(self.game_button)
         vbox.addLayout(hbox)
 
@@ -85,6 +106,7 @@ class ImageFilterApp(QWidget):
             self.image_label.setScaledContents(True)
 
             # Save the original image for later use
+            self.original_image_path = file_path
             self.original_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
 
     def show_filter_input_dialog(self):
@@ -139,6 +161,20 @@ class ImageFilterApp(QWidget):
         pixmap = QPixmap(image)
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
+
+    def apply_invisibility_cloak(self):
+        invisibility_cloak(
+            lower_red=[0, 120, 70],
+            upper_red=[10, 255, 255],
+            background_img=self.original_image_path,
+        )
+
+    def apply_green_screen_real_time(self):
+        green_screen_realtime(
+            lower_green=[0, 120, 70],
+            upper_green=[10, 255, 255],
+            background_img=self.original_image_path,
+        )
 
     def start_game_thread(self):
         if self.game_thread is not None and self.game_thread.isRunning():

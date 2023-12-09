@@ -2,14 +2,12 @@ import cv2
 import numpy as np
 from cv1 import tools
 
-# Specify the target color range in HSV
-lower_bound = np.array([0, 120, 70])
-upper_bound = np.array([180, 255, 255])
 
-
-def green_screen_image(
-    img, background_img, lower_green=lower_bound, upper_green=upper_bound
-):
+def green_screen_image(*, img, background_img, lower_green=None, upper_green=None):
+    if not lower_green:
+        lower_green = np.array([0, 120, 70])
+    if not upper_green:
+        upper_green = np.array([10, 255, 255])
     # Load the image
     image = cv2.imread(img)
     # Convert the image from BGR to HSV color space
@@ -30,11 +28,22 @@ def green_screen_image(
     cv2.destroyAllWindows()
 
 
-def green_screen_realtime(lower_green, upper_green, *, background_img):
+def green_screen_realtime(*, lower_green=None, upper_green=None, background_img=None):
     # Initialize the webcam
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+
+    if not lower_green:
+        lower_green = np.array([0, 120, 70])
+    if not upper_green:
+        upper_green = np.array([10, 255, 255])
+    if background_img is None:
+        _, background = cap.read()
+        cv2.flip(background, 1, background)
+    else:
+        background = cv2.imread(background_img)
+        background = cv2.resize(background, (320, 240))
 
     while True:
         # Capture the current frame
@@ -54,10 +63,8 @@ def green_screen_realtime(lower_green, upper_green, *, background_img):
         foreground = tools.bitwise_and(frame, mask=color_mask)
 
         # put a background image
-        background = cv2.imread(background_img)
-        background = cv2.resize(background, (frame.shape[1], frame.shape[0]))
-        background = tools.bitwise_and(background, mask=tools.bitwise_not(color_mask))
-        foreground = tools.add_weighted(foreground, 1, background, 1, 0)
+        current_background = tools.bitwise_and(background, mask=tools.bitwise_not(color_mask))
+        foreground = tools.add_weighted(foreground, 1, current_background, 1, 0)
 
         # Display the result in real-time
         cv2.imshow("Green Screen ", foreground)
@@ -69,10 +76,3 @@ def green_screen_realtime(lower_green, upper_green, *, background_img):
     # Release the webcam and close all windows
     cap.release()
     cv2.destroyAllWindows()
-
-
-green_screen_realtime(lower_bound, upper_bound, background_img="data/orange.png")
-
-
-if __name__ == "__main__":
-    green_screen_image("data/ppp.png", "data/orange.png", lower_bound, upper_bound)
