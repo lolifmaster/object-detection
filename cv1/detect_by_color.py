@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import detection
+import cv1.detection as detection
 
 
 def detect_objects_by_color(image, target_color_lower, target_color_upper):
@@ -39,11 +39,7 @@ def detect_objects_by_color_upgraded(image, target_color_lower, target_color_upp
         x, y, w, h = cv2.boundingRect(np.array(c))
         cv2.rectangle(final, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    cv2.imshow("Original Image", image)
-    cv2.imshow("Detected Objects", final)
-    cv2.imshow("Mask", mask)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    return final
 
 
 if __name__ == "__main__":

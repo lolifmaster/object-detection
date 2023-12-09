@@ -10,7 +10,7 @@ def dfs(x, y, image, visited, contours):
     while stack:
         x, y = stack.pop()
 
-        # ceck if the current pixel is already visited or if it is not white
+        # check if the current pixel is already visited or if it is not white
         if (x, y) in visited or not (
             0 <= x < image.shape[1] and 0 <= y < image.shape[0] and image[y, x] == 255
         ):
@@ -35,7 +35,7 @@ def find_contours(image, min_contour_area=1000):
 
     for y in range(image.shape[0]):
         for x in range(image.shape[1]):
-            # ckecj the current pixel is not visited and it is white
+            # check the current pixel is not visited and it is white
             if (x, y) not in visited and image[y, x] == 255:
                 contours.append([])
                 dfs(x, y, image, visited, contours)
@@ -81,7 +81,10 @@ def in_range_detect(image, lower_bound, upper_bound):
     lower_bound_b, lower_bound_g, lower_bound_r = lower_bound
     upper_bound_b, upper_bound_g, upper_bound_r = upper_bound
 
-    points = []
+    upper_x = 0
+    upper_y = 0
+    lower_x = width
+    lower_y = height
     for y in range(height):
         for x in range(width):
             # Extract the HSV values for the current pixel
@@ -95,17 +98,18 @@ def in_range_detect(image, lower_bound, upper_bound):
             ):
                 mask[y, x] = 255  # Set to 255 if within range
 
-                # add the coordinates to the list of points
-                points.append((x, y))
+                # update the upper and lower coordinates
+                if x > upper_x:
+                    upper_x = x
+                if y > upper_y:
+                    upper_y = y
+                if x < lower_x:
+                    lower_x = x
+                if y < lower_y:
+                    lower_y = y
 
     # get the upper and lower coordinates
-    if points:
-        lower_x = min(points, key=lambda p: p[0])[0]
-        lower_y = min(points, key=lambda p: p[1])[1]
-        upper_x = max(points, key=lambda p: p[0])[0]
-        upper_y = max(points, key=lambda p: p[1])[1]
-        cords = (upper_x, upper_y, lower_x, lower_y)
-    else:
-        cords = None
+    if upper_x == 0 and upper_y == 0 and lower_x == width and lower_y == height:
+        return mask, None
 
-    return mask, cords
+    return mask, (upper_x, upper_y, lower_x, lower_y)

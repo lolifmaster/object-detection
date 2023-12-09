@@ -24,10 +24,10 @@ from workers import (
 )
 from image_processor import FilterInputDialog, FILTERS
 from cv1 import (
-    green_screen,
     green_screen_realtime,
     detect_objects_by_color_real_time,
     invisibility_cloak,
+    detect_objects_by_color_upgraded,
 )
 from multiprocessing import Process
 
@@ -36,6 +36,7 @@ class ImageFilterApp(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.detect_object_button = None
         self.invisibility_cloak = None
         self.green_screen_button = None
         self.detect_button = None
@@ -70,8 +71,11 @@ class ImageFilterApp(QWidget):
         self.game_button = QPushButton("Play Game", self)
         self.game_button.clicked.connect(self.start_game_thread)
 
-        self.detect_button = QPushButton("Detect Object", self)
+        self.detect_button = QPushButton("Detect Video", self)
         self.detect_button.clicked.connect(self.apply_object_detection)
+
+        self.detect_object_button = QPushButton("Detect Obj", self)
+        self.detect_object_button.clicked.connect(self.detect_objects_by_color)
 
         self.green_screen_button = QPushButton("Green Screen", self)
         self.green_screen_button.clicked.connect(self.apply_green_screen_real_time)
@@ -83,13 +87,14 @@ class ImageFilterApp(QWidget):
         vbox.addWidget(self.upload_button)
         vbox.addWidget(self.filter_combobox)
         vbox.addWidget(self.apply_button)
-        # Improved layout using QHBoxLayout
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.detect_button)
-        hbox.addWidget(self.green_screen_button)
-        hbox.addWidget(self.invisibility_cloak)
-        hbox.addWidget(self.game_button)
-        vbox.addLayout(hbox)
+
+        rt_features = QHBoxLayout()
+        rt_features.addWidget(self.detect_button)
+        rt_features.addWidget(self.green_screen_button)
+        rt_features.addWidget(self.invisibility_cloak)
+        rt_features.addWidget(self.game_button)
+        rt_features.addWidget(self.detect_object_button)
+        vbox.addLayout(rt_features)
 
         # Add stretch factor to the image_label
         vbox.addWidget(self.image_label, 1)
@@ -171,6 +176,15 @@ class ImageFilterApp(QWidget):
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
 
+    def display_image_color(self, image_data):
+        # Convert the image data to a format that can be displayed with QPixmap
+        height, width, _ = image_data.shape
+        bytes_per_line = width * 3
+        image = QImage(image_data, width, height, bytes_per_line, QImage.Format_BGR888)
+        pixmap = QPixmap(image)
+        self.image_label.setPixmap(pixmap)
+        self.image_label.setScaledContents(True)
+
     def apply_invisibility_cloak(self):
         self.invisibility_cloak_thread = InvisibilityCloakThread(
             lower_red=[0, 120, 70],
@@ -190,6 +204,17 @@ class ImageFilterApp(QWidget):
     def apply_object_detection(self):
         self.object_detection_thread = ObjectDetectionThread()
         self.object_detection_thread.start()
+
+    def detect_objects_by_color(self):
+        if self.original_image_path is None:
+            self.show_error_message("Please upload an image before detecting...")
+            return
+        detected_img = detect_objects_by_color_upgraded(
+            image=self.original_image_path,
+            target_color_lower=[0, 120, 70],
+            target_color_upper=[10, 255, 255],
+        )
+        self.display_image_color(detected_img)
 
     def start_game_thread(self):
         if self.game_thread is not None and self.game_thread.isRunning():
