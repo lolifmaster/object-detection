@@ -22,16 +22,18 @@ from cv1.filters import (
     erode,
     dilate,
 )
+from PyQt5.QtCore import QTimer
 
 
 class FilterInputDialog(QDialog):
     def __init__(self, arguments, parent=None):
-        super(FilterInputDialog, self).__init__(parent)
+        super().__init__(parent)
         self.setWindowTitle("Filter Parameters")
         self.layout = QFormLayout(self)
         self.arguments = arguments
         self.input_widgets = {}
         self.error_labels = {}
+        self.setWhatsThis(DESCRIPTIONS)
 
         for argument_name in self.arguments:
             if argument_name == "kernel_shape":
@@ -60,6 +62,7 @@ class FilterInputDialog(QDialog):
     def validate_inputs(self):
         for argument_name, input_widget in self.input_widgets.items():
             error_label = self.error_labels[argument_name]
+
             if argument_name in ["kernel_shape", "direction"]:
                 # No need to check for emptiness in a combo box
                 error_label.clear()
@@ -67,7 +70,22 @@ class FilterInputDialog(QDialog):
                 error_label.setText("This field is required")
                 return False
             else:
-                error_label.clear()
+                try:
+                    # Attempt to convert the input value to the expected type
+                    if argument_name == "kernel_shape":
+                        Shape(input_widget.currentText())
+                    elif argument_name == "direction":
+                        input_widget.currentText()  # No conversion needed for a combo box
+                    else:
+                        ast.literal_eval(input_widget.text())
+
+                    # If the conversion succeeds, clear the error label
+                    error_label.clear()
+                except (SyntaxError, ValueError):
+                    # If the conversion fails, set an error message
+                    error_label.setText("Invalid type for this field")
+                    return False
+
         return True
 
     def get_argument_values(self):
@@ -137,3 +155,11 @@ FILTERS = [
         "kernel_shape": ["rect", "cross"],
     },
 ]
+
+DESCRIPTIONS = """
+    "kernel_size": "The size of the kernel to use for the filter. (positive integer in morph filters).",
+    "sigma": "The standard deviation of the Gaussian filter. Must be a positive number.",
+    "iterations": "The number of times to apply the filter. Must be a positive integer.",
+    "kernel_shape": "The shape of the kernel to use for the filter.",
+    "direction": "The direction of the Sobel filter.",
+"""

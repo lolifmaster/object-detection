@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QDialog,
 )
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
 from cv1 import tools
@@ -57,6 +58,7 @@ class ImageFilterApp(QWidget):
     def init_ui(self):
         self.image_label = QLabel(self)
         self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.image_label.setAlignment(Qt.AlignCenter)  # Align image in the center
 
         self.filter_combobox = QComboBox(self)
         for filter_data in self.filters:
@@ -74,7 +76,7 @@ class ImageFilterApp(QWidget):
         self.detect_button = QPushButton("Detect Video", self)
         self.detect_button.clicked.connect(self.apply_object_detection)
 
-        self.detect_object_button = QPushButton("Detect Obj", self)
+        self.detect_object_button = QPushButton("Detect Objects", self)
         self.detect_object_button.clicked.connect(self.detect_objects_by_color)
 
         self.green_screen_button = QPushButton("Green Screen", self)
@@ -83,11 +85,20 @@ class ImageFilterApp(QWidget):
         self.invisibility_cloak = QPushButton("Invisibility Cloak", self)
         self.invisibility_cloak.clicked.connect(self.apply_invisibility_cloak)
 
+        # Adding labels
+        upload_label = QLabel("Upload Image:", self)
+        filter_label = QLabel("Select Filter:", self)
+        realtime_label = QLabel("Real-time Features:", self)
+
         vbox = QVBoxLayout(self)
+        vbox.addWidget(upload_label)
         vbox.addWidget(self.upload_button)
+
+        vbox.addWidget(filter_label)
         vbox.addWidget(self.filter_combobox)
         vbox.addWidget(self.apply_button)
 
+        vbox.addWidget(realtime_label)
         rt_features = QHBoxLayout()
         rt_features.addWidget(self.detect_button)
         rt_features.addWidget(self.green_screen_button)
@@ -134,7 +145,12 @@ class ImageFilterApp(QWidget):
         test_image = self.original_image
 
         # apply threshold to image if selected filter is opening or closing or erosion or dilation
-        if selected_filter["name"] in ["Opening", "Closing", "Erosion", "Dilation"]:
+        if selected_filter["name"] in [
+            "Opening Filter",
+            "Closing Filter",
+            "Erosion Filter",
+            "Dilation Filter",
+        ]:
             test_image = tools.threshold(self.original_image, 127, 255)
 
         # Show the input dialog only if the selected filter has arguments
