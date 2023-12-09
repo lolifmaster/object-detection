@@ -1,5 +1,48 @@
 import numpy as np
 
+def dfs(x, y, image, visited, contours):
+    """
+    Performs a dfs search on the image starting from the specified coordinates.
+    """
+    stack = [(x, y)]
+
+    while stack:
+        x, y = stack.pop()
+
+        # ceck if the current pixel is already visited or if it is not white
+        if (x, y) in visited or not (
+            0 <= x < image.shape[1] 
+            and 0 <= y < image.shape[0] 
+            and image[y, x] == 255
+        ):
+            continue
+        
+        # mark the current pixel as visited and add it to the current contour
+        visited.add((x, y))
+        contours[-1].append((x, y))
+
+        #add the neighbors of the current pixel to the stack
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                stack.append((x + dx, y + dy))
+
+
+def find_contours(image, min_contour_area=1000):
+    """
+    find all the connected pixels in the image and return them as a list of contours
+    """
+    contours = []
+    visited = set()
+
+    for y in range(image.shape[0]):
+        for x in range(image.shape[1]):
+            # ckecj the current pixel is not visited and it is white
+            if (x, y) not in visited and image[y, x] == 255:
+                contours.append([])
+                dfs(x, y, image, visited, contours)
+
+    return [c for c in contours if len(c) > min_contour_area]
+
 
 def calculate_center(contours):
     if not contours:
@@ -47,9 +90,9 @@ def in_range_detect(image, lower_bound, upper_bound):
 
             # Check if the pixel values are within the specified range for each channel
             if (
-                    lower_bound_b <= h <= upper_bound_b
-                    and lower_bound_g <= s <= upper_bound_g
-                    and lower_bound_r <= v <= upper_bound_r
+                lower_bound_b <= h <= upper_bound_b
+                and lower_bound_g <= s <= upper_bound_g
+                and lower_bound_r <= v <= upper_bound_r
             ):
                 mask[y, x] = 255  # Set to 255 if within range
 
