@@ -181,9 +181,8 @@ class CarDodgingGame:
             # move the obstacle downward based on the obstacle speed
             obstacle_y += self.obstacle_speed
 
-            # check if the obstacle has passed the lower edge of the game window
-            if obstacle_y > self.height:
-                # increase the score when the obstacle passes the lower fence
+            # check if the bottom edge of the obstacle has passed the lower edge of the game window
+            if obstacle_y + obstacle_height > self.height:
                 self.score += obstacle_type.score
 
             else:
@@ -514,6 +513,6 @@ class CarDodgingGame:
 
 
 if __name__ == "__main__":
-    use_camera = True
+    use_camera = False
     game = CarDodgingGame(camera=use_camera)
     game.run()
