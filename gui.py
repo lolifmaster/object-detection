@@ -91,7 +91,7 @@ class ImageFilterApp(QWidget):
         # Adding labels
         upload_label = QLabel("Upload Image:", self)
         filter_label = QLabel("Select Filter:", self)
-        realtime_label = QLabel("Real-time Features:", self)
+        realtime_label = QLabel("Detection Features:", self)
 
         vbox = QVBoxLayout(self)
         vbox.addWidget(upload_label)
