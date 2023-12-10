@@ -2,7 +2,6 @@ from typing import Sequence, Literal
 from cv1 import tools
 import numpy as np
 from cv1.shapes import Shape
-import cv2
 
 
 def mean(src, kernel_size: Sequence[int]):
@@ -51,7 +50,7 @@ def median(src, kernel_size: Sequence[int]):
     for i in range(src.shape[0]):
         for j in range(src.shape[1]):
             dst[i, j] = np.median(
-                padded_src[i : i + kernel_size[0], j : j + kernel_size[1]]
+                padded_src[i: i + kernel_size[0], j: j + kernel_size[1]]
             )
 
     return dst
@@ -80,7 +79,8 @@ def gaussian(src, kernel_size: Sequence[int], sigma: float):
     for i in range(kernel_size[0]):
         for j in range(kernel_size[1]):
             kernel[i, j] = np.exp(
-                -((i - kernel_size[0] // 2) ** 2 + (j - kernel_size[1] // 2) ** 2)
+                -((i - kernel_size[0] // 2) ** 2 +
+                  (j - kernel_size[1] // 2) ** 2)
                 / (2 * sigma**2)
             )
     kernel /= np.sum(kernel)
@@ -127,7 +127,8 @@ def sharpen(src):
         numpy.ndarray: L'image filtrée.
     """
     kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-    sharpen_img = tools.filter_2d(src, kernel, mode="constant", constant_values=0)
+    sharpen_img = tools.filter_2d(
+        src, kernel, mode="constant", constant_values=0)
     return sharpen_img
 
 
@@ -204,17 +205,20 @@ def erode(
                 match kernel_shape:
                     case Shape.RECT:
                         dst[i, j] = np.min(
-                            padded_dst[i : i + kernel_size, j : j + kernel_size]
+                            padded_dst[i: i + kernel_size, j: j + kernel_size]
                         )
                     case Shape.CROSS:
                         dst[i, j] = np.min(
                             [
-                                padded_dst[i : i + kernel_size, j + kernel_size // 2],
-                                padded_dst[i + kernel_size // 2, j : j + kernel_size],
+                                padded_dst[i: i + kernel_size,
+                                           j + kernel_size // 2],
+                                padded_dst[i + kernel_size //
+                                           2, j: j + kernel_size],
                             ]
                         )
                     case _:
-                        raise ValueError("kernel_shape devrait être RECT ou CROSS")
+                        raise ValueError(
+                            "kernel_shape devrait être RECT ou CROSS")
 
         temp_img = dst
 
@@ -250,17 +254,20 @@ def dilate(
                 match kernel_shape:
                     case Shape.RECT:
                         dst[i, j] = np.max(
-                            padded_dst[i : i + kernel_size, j : j + kernel_size]
+                            padded_dst[i: i + kernel_size, j: j + kernel_size]
                         )
                     case Shape.CROSS:
                         dst[i, j] = np.max(
                             [
-                                padded_dst[i : i + kernel_size, j + kernel_size // 2],
-                                padded_dst[i + kernel_size // 2, j : j + kernel_size],
+                                padded_dst[i: i + kernel_size,
+                                           j + kernel_size // 2],
+                                padded_dst[i + kernel_size //
+                                           2, j: j + kernel_size],
                             ]
                         )
                     case _:
-                        raise ValueError("kernel_shape devrait être RECT ou CROSS")
+                        raise ValueError(
+                            "kernel_shape devrait être RECT ou CROSS")
 
         temp_img = dst
 
@@ -283,7 +290,8 @@ def opening(
         numpy.ndarray: L'image filtrée.
     """
     return dilate(
-        erode(src, kernel_size, iterations=iterations, kernel_shape=kernel_shape),
+        erode(src, kernel_size, iterations=iterations,
+              kernel_shape=kernel_shape),
         kernel_size,
         iterations=iterations,
         kernel_shape=kernel_shape,
@@ -306,7 +314,8 @@ def closing(
         numpy.ndarray: L'image filtrée.
     """
     return erode(
-        dilate(src, kernel_size, iterations=iterations, kernel_shape=kernel_shape),
+        dilate(src, kernel_size, iterations=iterations,
+               kernel_shape=kernel_shape),
         kernel_size,
         iterations=iterations,
         kernel_shape=kernel_shape,
