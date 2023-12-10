@@ -244,8 +244,38 @@ class ImageFilterApp(QWidget):
         if self.game_thread is not None and self.game_thread.isRunning():
             self.show_error_message("The game is already running!")
             return
+
+        # Create a dialog to ask the user whether to use the camera
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Game Options")
+
+        label = QLabel("Do you want to use the camera for the game?")
+        yes_button = QPushButton("Yes")
+        no_button = QPushButton("No")
+
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(yes_button)
+        layout.addWidget(no_button)
+        dialog.setLayout(layout)
+
+        # Connect buttons to corresponding slots
+        yes_button.clicked.connect(lambda: self.start_game(True, dialog))
+        no_button.clicked.connect(lambda: self.start_game(False, dialog))
+
+        # Show the dialog
+        dialog.exec_()
+
+    def start_game(self, use_camera, dialog):
+        dialog.accept()  # Close the dialog
+
+        # Now, start the game with the chosen option
+        if self.game_thread is not None and self.game_thread.isRunning():
+            self.show_error_message("The game is already running!")
+            return
+
         self.game_button.setEnabled(False)
-        self.game_thread = GameHandler()
+        self.game_thread = GameHandler(camera=use_camera)
         self.game_thread.game_finished.connect(self.on_game_finished)
         self.game_thread.start()
 

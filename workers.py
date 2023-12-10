@@ -10,13 +10,13 @@ from cv1 import (
 class GameHandler(QThread):
     game_finished = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, camera=True):
         super().__init__(parent)
-        self.game = CarDodgingGame(camera=True)
+        self.game = CarDodgingGame(camera=camera)
 
     def run(self):
         try:
-            self.game.start()
+            self.game.run()
             self.game_finished.emit()
         except Exception as e:
             print(f"Error in GameHandler: {e}")
