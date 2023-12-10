@@ -46,6 +46,7 @@ class ImageFilterApp(QWidget):
         self.game_button = None
         self.apply_button = None
         self.upload_button = None
+        self.remove_image_button = None
         self.image_label = None
         self.filter_combobox = None
         self.original_image = None
@@ -60,8 +61,7 @@ class ImageFilterApp(QWidget):
 
     def init_ui(self):
         self.image_label = QLabel(self)
-        self.image_label.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.image_label.setAlignment(Qt.AlignCenter)
         self.image_label.setPixmap(QPixmap("data/placeholder.jpg"))
 
@@ -71,6 +71,9 @@ class ImageFilterApp(QWidget):
 
         self.upload_button = QPushButton("Upload Image", self)
         self.upload_button.clicked.connect(self.load_image)
+
+        self.remove_image_button = QPushButton("Remove Image", self)
+        self.remove_image_button.clicked.connect(self.remove_image)
 
         self.apply_button = QPushButton("Apply Filter", self)
         self.apply_button.clicked.connect(self.show_filter_input_dialog)
@@ -85,8 +88,7 @@ class ImageFilterApp(QWidget):
         self.detect_object_button.clicked.connect(self.detect_objects_by_color)
 
         self.green_screen_button = QPushButton("Green Screen", self)
-        self.green_screen_button.clicked.connect(
-            self.apply_green_screen_real_time)
+        self.green_screen_button.clicked.connect(self.apply_green_screen_real_time)
 
         self.invisibility_cloak = QPushButton("Invisibility Cloak", self)
         self.invisibility_cloak.clicked.connect(self.apply_invisibility_cloak)
@@ -98,6 +100,7 @@ class ImageFilterApp(QWidget):
         vbox = QVBoxLayout(self)
         vbox.addWidget(upload_label)
         vbox.addWidget(self.upload_button)
+        vbox.addWidget(self.remove_image_button)
 
         vbox.addWidget(filter_label)
         vbox.addWidget(self.filter_combobox)
@@ -114,8 +117,7 @@ class ImageFilterApp(QWidget):
 
         vbox.addWidget(self.image_label, 1)
 
-        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum,
-                             QSizePolicy.Expanding)
+        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         vbox.addItem(spacer)
 
         self.setWindowTitle("Image Filter App")
@@ -146,6 +148,14 @@ class ImageFilterApp(QWidget):
             self.original_image_path = file_path
             self.original_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
 
+    def remove_image(self):
+        """
+        Supprime l'image affichée dans l'interface graphique.
+        """
+        self.image_label.setPixmap(QPixmap("data/placeholder.jpg"))
+        self.original_image = None
+        self.original_image_path = None
+
     def show_filter_input_dialog(self):
         """
         Affiche une boîte de dialogue permettant à l'utilisateur de
@@ -153,8 +163,7 @@ class ImageFilterApp(QWidget):
         à l'image d'origine.
         """
         if self.original_image is None:
-            self.show_error_message(
-                "Please upload an image before applying a filter.")
+            self.show_error_message("Please upload an image before applying a filter.")
             return
 
         selected_filter_index = self.filter_combobox.currentIndex()
@@ -170,8 +179,7 @@ class ImageFilterApp(QWidget):
             test_image = tools.threshold(self.original_image, 127, 255)
 
         if selected_filter["arguments"]:
-            input_dialog = FilterInputDialog(
-                selected_filter["arguments"], self)
+            input_dialog = FilterInputDialog(selected_filter["arguments"], self)
             result = input_dialog.exec_()
 
             if result == QDialog.Accepted:
@@ -220,8 +228,7 @@ class ImageFilterApp(QWidget):
 
         height, width, _ = image_data.shape
         bytes_per_line = width * 3
-        image = QImage(image_data, width, height,
-                       bytes_per_line, QImage.Format_BGR888)
+        image = QImage(image_data, width, height, bytes_per_line, QImage.Format_BGR888)
         pixmap = QPixmap(image)
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
@@ -273,10 +280,8 @@ class ImageFilterApp(QWidget):
         layout.addWidget(no_button)
         dialog.setLayout(layout)
 
-        pixels_button.clicked.connect(
-            lambda: self.start_green_screen("pixel", dialog))
-        no_button.clicked.connect(
-            lambda: self.start_green_screen("contour", dialog))
+        pixels_button.clicked.connect(lambda: self.start_green_screen("pixel", dialog))
+        no_button.clicked.connect(lambda: self.start_green_screen("contour", dialog))
 
         # Show the dialog
         dialog.exec_()
@@ -294,8 +299,7 @@ class ImageFilterApp(QWidget):
             background_img=self.original_image_path,
             mode=mode,
         )
-        self.green_screen_thread.finished.connect(
-            self.on_detection_feature_finished)
+        self.green_screen_thread.finished.connect(self.on_detection_feature_finished)
         self.green_screen_thread.start()
 
     def apply_object_detection(self):
@@ -332,8 +336,7 @@ class ImageFilterApp(QWidget):
         spécifiées.
         """
         if self.original_image_path is None:
-            self.show_error_message(
-                "Please upload an image before detecting...")
+            self.show_error_message("Please upload an image before detecting...")
             return
         detected_img = detect_objects_by_color_upgraded(
             image=self.original_image_path,
@@ -398,8 +401,7 @@ class ImageFilterApp(QWidget):
         Méthode appelée lorsque le jeu est terminé. Affiche une boîte de
         dialogue informant que le jeu est terminé.
         """
-        QMessageBox.information(self, "Game Finished",
-                                "The game has finished!")
+        QMessageBox.information(self, "Game Finished", "The game has finished!")
         self.game_thread.quit()
         self.game_thread = None
         self.game_button.setEnabled(True)
