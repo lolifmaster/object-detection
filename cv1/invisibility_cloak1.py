@@ -3,7 +3,7 @@ import numpy as np
 from cv1 import tools, detection
 
 
-def manteau_invisibilite(*, seuil_rouge_inf, seuil_rouge_sup, image_fond=None):
+def invisibility_cloak(*, seuil_rouge_inf, seuil_rouge_sup, image_fond=None):
     """
     Applique l'effet de manteau d'invisibilité en utilisant la détection de couleur.
 
