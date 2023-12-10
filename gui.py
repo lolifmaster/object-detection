@@ -53,6 +53,7 @@ class ImageFilterApp(QWidget):
         self.object_detection_thread = None
         self.original_image_path = None
         self.filters = FILTERS
+        self.detection_feature_running = False
         self.init_ui()
 
     def init_ui(self):
@@ -61,6 +62,7 @@ class ImageFilterApp(QWidget):
             QSizePolicy.Expanding, QSizePolicy.Expanding)
         # Align image in the center
         self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setPixmap(QPixmap("data/placeholder.jpg"))
 
         self.filter_combobox = QComboBox(self)
         for filter_data in self.filters:
@@ -119,7 +121,12 @@ class ImageFilterApp(QWidget):
         vbox.addItem(spacer)
 
         self.setWindowTitle("Image Filter App")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(0, 0, 1000, 800)
+
+        # Center the window on the screen
+        screen_geometry = QApplication.desktop().screenGeometry()
+        x = (screen_geometry.width() - self.width()) // 2
+        self.move(x, 20)
 
         self.setLayout(vbox)
         self.show()
@@ -209,24 +216,46 @@ class ImageFilterApp(QWidget):
         self.image_label.setScaledContents(True)
 
     def apply_invisibility_cloak(self):
+        if self.detection_feature_running:
+            self.show_error_message("Cannot start Invisibility Cloak while another feature is running.")
+            return
+
+        self.detection_feature_running = True
         self.invisibility_cloak_thread = InvisibilityCloakThread(
             lower_red=[0, 120, 70],
             upper_red=[10, 255, 255],
             background_img=self.original_image_path,
         )
+        self.invisibility_cloak_thread.finished.connect(self.on_detection_feature_finished)
         self.invisibility_cloak_thread.start()
 
     def apply_green_screen_real_time(self):
+        if self.detection_feature_running:
+            self.show_error_message("Cannot start Green Screen while another feature is running.")
+            return
+
+        self.detection_feature_running = True
         self.green_screen_thread = GreenScreenThread(
             lower_green=[0, 120, 70],
             upper_green=[10, 255, 255],
             background_img=self.original_image_path,
         )
+        self.green_screen_thread.finished.connect(self.on_detection_feature_finished)
         self.green_screen_thread.start()
 
     def apply_object_detection(self):
+        if self.detection_feature_running:
+            self.show_error_message("Cannot start Object Detection while another feature is running.")
+            return
+
+        self.detection_feature_running = True
         self.object_detection_thread = ObjectDetectionThread()
+        self.object_detection_thread.finished.connect(self.on_detection_feature_finished)
         self.object_detection_thread.start()
+
+    def on_detection_feature_finished(self):
+        self.detection_feature_running = False
+        QMessageBox.information(self, "Detection Feature Finished", "The detection feature has finished!")
 
     def detect_objects_by_color(self):
         if self.original_image_path is None:
@@ -242,7 +271,11 @@ class ImageFilterApp(QWidget):
 
     def start_game_thread(self):
         if self.game_thread is not None and self.game_thread.isRunning():
-            self.show_error_message("The game is already running!")
+            self.show_error_message("Wait for the current thread to end!")
+            return
+
+        if self.detection_feature_running:
+            self.show_error_message("Cannot start the game while another feature is running.")
             return
 
         # Create a dialog to ask the user whether to use the camera
@@ -268,8 +301,8 @@ class ImageFilterApp(QWidget):
 
     def start_game(self, use_camera, dialog):
         dialog.accept()  # Close the dialog
+        self.detection_feature_running = True
 
-        # Now, start the game with the chosen option
         if self.game_thread is not None and self.game_thread.isRunning():
             self.show_error_message("The game is already running!")
             return
@@ -285,3 +318,4 @@ class ImageFilterApp(QWidget):
         self.game_thread.quit()
         self.game_thread = None
         self.game_button.setEnabled(True)
+        self.detection_feature_running = False
