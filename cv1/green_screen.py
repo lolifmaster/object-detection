@@ -63,7 +63,6 @@ def green_screen_realtime(
     # Capturer une image de fond si aucune image d'arrière-plan n'est spécifiée
     if background_img is None:
         _, background = cap.read()
-        cv2.flip(background, 1, background)
     else:
         background = cv2.imread(background_img)
         background = cv2.resize(background, (320, 240))
@@ -106,6 +105,11 @@ def green_screen_realtime(
 
         # Afficher le résultat en temps réel
         cv2.imshow("Green Screen", final)
+
+        # update the background image if the user presses 'b'
+        if cv2.waitKey(1) & 0xFF == ord("b"):
+            _, background = cap.read()
+            cv2.flip(background, 1, background)
 
         # Quitter la boucle si la touche 'q' est pressée
         if cv2.waitKey(1) & 0xFF == ord("q"):

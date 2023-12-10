@@ -28,12 +28,11 @@ def invisibility_cloak(*, lower_red, upper_red, background_img=None):
         background = cv2.resize(background_img, (320, 240))
     else:
         _, background = cap.read()
-        cv2.flip(background, 1, background)
 
     while True:
         # Capturer l'image actuelle
         ret, frame = cap.read()
-        cv2.flip(frame, 1)
+        cv2.flip(frame, 1, frame)
         # Convertir l'image de l'espace couleur BGR à HSV
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         masque_couleur, contour = detection.in_range_detect(
@@ -47,6 +46,11 @@ def invisibility_cloak(*, lower_red, upper_red, background_img=None):
             ]
 
         cv2.imshow("Manteau d'Invisibilité", frame)
+
+        # update the background if pressed 'b'
+        if cv2.waitKey(10) & 0xFF == ord("b"):
+            _, background = cap.read()
+            cv2.flip(background, 1, background)
 
         # Interrompre la boucle si la touche 'q' est pressée
         if cv2.waitKey(10) & 0xFF == ord("q"):
