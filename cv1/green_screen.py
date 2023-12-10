@@ -37,7 +37,9 @@ def green_screen_image(*, img, background_img, lower_green=None, upper_green=Non
     cv2.destroyAllWindows()
 
 
-def green_screen_realtime(*, lower_green=None, upper_green=None, background_img=None):
+def green_screen_realtime(
+    *, lower_green=None, upper_green=None, background_img=None, mode="pixel"
+):
     """
     Réalise des effets de fond vert en temps réel à partir d'une webcam.
 
@@ -45,6 +47,7 @@ def green_screen_realtime(*, lower_green=None, upper_green=None, background_img=
         lower_green (np.array): Seuil HSV inférieur pour la couleur verte (par défaut [0, 120, 70]).
         upper_green (np.array): Seuil HSV supérieur pour la couleur verte (par défaut [10, 255, 255]).
         background_img (str): Chemin vers l'image d'arrière-plan pour le remplacement en temps réel.
+        mode (str): Mode de remplacement de l'arrière-plan ["pixel", "contour"] (par défaut "pixel").
     """
     # Initialiser la webcam
     cap = cv2.VideoCapture(0)
@@ -73,19 +76,36 @@ def green_screen_realtime(*, lower_green=None, upper_green=None, background_img=
         # Convertir le frame de l'espace couleur BGR à HSV
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        # Utiliser la détection basée sur les seuils pour trouver les contours verts
-        _, contour = detection.in_range_detect(hsv_frame, lower_green, upper_green)
+        if mode == "pixel":
+            # Créer un masque binaire pour la plage de couleur verte
+            color_mask = tools.in_range(hsv_frame, lower_green, upper_green)
 
-        # Copier l'image d'arrière-plan et remplacer la région spécifiée par le frame actuel
-        final = background.copy()
-        if contour:
-            upper_x, upper_y, lower_x, lower_y = contour
-            final[lower_y:upper_y, lower_x:upper_x] = frame[
-                lower_y:upper_y, lower_x:upper_x
-            ]
+            # Extraire le premier plan (objet) du frame
+            foreground = tools.bitwise_and(frame, mask=color_mask)
+
+            # Créer un masque pour les zones non vertes
+            background_mask = tools.bitwise_not(color_mask)
+
+            # Combiner le premier plan et l'arrière-plan avec des poids
+            masked_background = tools.bitwise_and(background, mask=background_mask)
+            final = tools.add_weighted(foreground, 1, masked_background, 1, 0)
+
+        elif mode == "contour":
+            # Créer un masque binaire pour la plage de couleur verte
+            _, contour = detection.in_range_detect(hsv_frame, lower_green, upper_green)
+
+            # Copier l'image d'arrière-plan et remplacer la région spécifiée par le frame actuel
+            final = background.copy()
+            if contour:
+                upper_x, upper_y, lower_x, lower_y = contour
+                final[lower_y:upper_y, lower_x:upper_x] = frame[
+                    lower_y:upper_y, lower_x:upper_x
+                ]
+        else:
+            raise ValueError(f"Invalid mode: {mode}")
 
         # Afficher le résultat en temps réel
-        cv2.imshow("Fond Vert en Temps Réel", final)
+        cv2.imshow("Green Screen", final)
 
         # Quitter la boucle si la touche 'q' est pressée
         if cv2.waitKey(1) & 0xFF == ord("q"):

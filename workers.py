@@ -77,7 +77,9 @@ class GreenScreenThread(QThread):
     Fil pour implémenter l'effet de l'écran vert.
     """
 
-    def __init__(self, lower_green, upper_green, background_img, parent=None):
+    def __init__(
+        self, lower_green, upper_green, background_img, parent=None, mode="pixel"
+    ):
         """
         Initialise le thread GreenScreenThread.
 
@@ -91,6 +93,7 @@ class GreenScreenThread(QThread):
         self.lower_green = lower_green
         self.upper_green = upper_green
         self.background_img = background_img
+        self.mode = mode
 
     def run(self):
         """
@@ -101,6 +104,7 @@ class GreenScreenThread(QThread):
                 lower_green=self.lower_green,
                 upper_green=self.upper_green,
                 background_img=self.background_img,
+                mode=self.mode,
             )
         except Exception as e:
             print(f"Erreur dans GreenScreenThread : {e}")

@@ -255,11 +255,38 @@ class ImageFilterApp(QWidget):
             )
             return
 
+        # select the green screen mode
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Green Screen Options")
+
+        label = QLabel("Which mode do you want to use?")
+        pixels_button = QPushButton("Pixels")
+        no_button = QPushButton("Contour")
+
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(pixels_button)
+        layout.addWidget(no_button)
+        dialog.setLayout(layout)
+
+        pixels_button.clicked.connect(lambda: self.start_green_screen("pixel", dialog))
+        no_button.clicked.connect(lambda: self.start_green_screen("contour", dialog))
+
+        # Show the dialog
+        dialog.exec_()
+
+    def start_green_screen(self, mode, dialog):
+        """
+        Démarre le thread d'écran vert en fonction de la décision de
+        l'utilisateur d'utiliser les pixels ou les contours.
+        """
+        dialog.accept()
         self.detection_feature_running = True
         self.green_screen_thread = GreenScreenThread(
             lower_green=[0, 120, 70],
             upper_green=[10, 255, 255],
             background_img=self.original_image_path,
+            mode=mode,
         )
         self.green_screen_thread.finished.connect(self.on_detection_feature_finished)
         self.green_screen_thread.start()
