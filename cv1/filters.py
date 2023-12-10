@@ -7,19 +7,19 @@ import cv2
 
 def mean(src, kernel_size: Sequence[int]):
     """
-    Apply mean filter to the source image.
+    Applique un filtre moyenne à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (Sequence[int]): The kernel size.
+        src (numpy.ndarray): L'image source.
+        kernel_size (Sequence[int]): La taille du noyau.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
+        raise ValueError("kernel_size devrait être une séquence")
     if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
+        raise ValueError("kernel_size devrait être une séquence de longueur 2")
 
     kernel = np.ones(kernel_size) / (kernel_size[0] * kernel_size[1])
     return tools.filter_2d(src, kernel)
@@ -27,20 +27,19 @@ def mean(src, kernel_size: Sequence[int]):
 
 def median(src, kernel_size: Sequence[int]):
     """
-    Apply median filter to the source image.
+    Applique un filtre médian à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (Sequence[int]): The kernel size.
+        src (numpy.ndarray): L'image source.
+        kernel_size (Sequence[int]): La taille du noyau.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
-
+        raise ValueError("kernel_size devrait être une séquence")
     if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
+        raise ValueError("kernel_size devrait être une séquence de longueur 2")
 
     dst = np.zeros_like(src)
     pad_width = (
@@ -60,20 +59,20 @@ def median(src, kernel_size: Sequence[int]):
 
 def gaussian(src, kernel_size: Sequence[int], sigma: float):
     """
-    Apply gaussian filter to the source image.
+    Applique un filtre gaussien à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (Sequence[int]): The kernel size.
-        sigma (float): The standard deviation of the gaussian distribution.
+        src (numpy.ndarray): L'image source.
+        kernel_size (Sequence[int]): La taille du noyau.
+        sigma (float): L'écart-type de la distribution gaussienne.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     if not isinstance(kernel_size, Sequence):
-        raise ValueError("kernel_size should be an Sequence")
+        raise ValueError("kernel_size devrait être une séquence")
     if len(kernel_size) != 2:
-        raise ValueError("kernel_size should be an Sequence of length 2")
+        raise ValueError("kernel_size devrait être une séquence de longueur 2")
     if sigma <= 0:
         sigma = src.std()
 
@@ -91,13 +90,13 @@ def gaussian(src, kernel_size: Sequence[int], sigma: float):
 
 def laplacian(src):
     """
-    Apply laplacian filter to the source image.
+    Applique un filtre laplacien à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
+        src (numpy.ndarray): L'image source.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     kernel = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]])
     return tools.filter_2d(src, kernel, clip=False)
@@ -105,13 +104,13 @@ def laplacian(src):
 
 def edge_detection(src):
     """
-    Apply edge detection filter to the source image.
+    Applique un filtre de détection de contours à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
+        src (numpy.ndarray): L'image source.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     kernel = np.array([[1, 0, -1], [0, 0, 0], [-1, 0, 1]])
     return tools.filter_2d(src, kernel)
@@ -119,13 +118,13 @@ def edge_detection(src):
 
 def sharpen(src):
     """
-    Apply sharpen filter to the source image.
+    Applique un filtre de netteté à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
+        src (numpy.ndarray): L'image source.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
     sharpen_img = tools.filter_2d(src, kernel, mode="constant", constant_values=0)
@@ -134,13 +133,13 @@ def sharpen(src):
 
 def emboss(src):
     """
-    Apply emboss filter to the source image.
+    Applique un filtre en relief à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
+        src (numpy.ndarray): L'image source.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     emboss_kernel = np.array([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]])
 
@@ -150,17 +149,16 @@ def emboss(src):
 
 def sobel(image, direction: Literal["x", "y", "xy"] = "xy"):
     """
-    Apply sobel filter to the source image.
+    Applique un filtre de Sobel à l'image source.
 
     Args:
-        image (numpy.ndarray): The source image.
-        direction (Literal["x", "y", "xy"]): The direction of the sobel filter.
-    :return:
-        numpy.ndarray: The filtered image.
+        image (numpy.ndarray): L'image source.
+        direction (Literal["x", "y", "xy"]): La direction du filtre de Sobel.
+
+    Returns:
+        numpy.ndarray: L'image filtrée.
     """
-
     kernel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
-
     kernel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
 
     if direction == "x":
@@ -170,7 +168,7 @@ def sobel(image, direction: Literal["x", "y", "xy"] = "xy"):
     elif direction == "xy":
         sobel_kernel = kernel_x + kernel_y
     else:
-        raise ValueError("direction should be x, y or xy")
+        raise ValueError("direction devrait être x, y ou xy")
 
     sobel_img = tools.filter_2d(image, sobel_kernel, mode="edge")
 
@@ -181,16 +179,16 @@ def erode(
     src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
-    Apply erosion to the source image.
+    Applique une érosion à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (int): The kernel size.
-        iterations (int): The number of iterations.
-        kernel_shape (Shape): The kernel shape.
+        src (numpy.ndarray): L'image source.
+        kernel_size (int): La taille du noyau.
+        iterations (int): Le nombre d'itérations.
+        kernel_shape (Shape): La forme du noyau.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     dst = np.zeros_like(src)
     pad_width = ((kernel_size - 1) // 2, kernel_size // 2), (
@@ -216,7 +214,7 @@ def erode(
                             ]
                         )
                     case _:
-                        raise ValueError("kernel_shape should be RECT or CROSS")
+                        raise ValueError("kernel_shape devrait être RECT ou CROSS")
 
         temp_img = dst
 
@@ -227,16 +225,16 @@ def dilate(
     src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
-    Apply dilatation to the source image.
+    Applique une dilatation à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (int): The kernel size.
-        iterations (int): The number of iterations.
-        kernel_shape (Shape): The kernel shape.
+        src (numpy.ndarray): L'image source.
+        kernel_size (int): La taille du noyau.
+        iterations (int): Le nombre d'itérations.
+        kernel_shape (Shape): La forme du noyau.
 
-    Raises:
-        numpy.ndarray: The filtered image.
+    Returns:
+        numpy.ndarray: L'image filtrée.
     """
     dst = np.zeros_like(src)
     pad_width = ((kernel_size - 1) // 2, kernel_size // 2), (
@@ -262,7 +260,7 @@ def dilate(
                             ]
                         )
                     case _:
-                        raise ValueError("kernel_shape should be RECT or CROSS")
+                        raise ValueError("kernel_shape devrait être RECT ou CROSS")
 
         temp_img = dst
 
@@ -273,16 +271,16 @@ def opening(
     src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
-    Apply opening to the source image.
+    Applique une opération d'ouverture à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (int): The kernel size.
-        iterations (int): The number of iterations.
-        kernel_shape (Shape): The kernel shape.
+        src (numpy.ndarray): L'image source.
+        kernel_size (int): La taille du noyau.
+        iterations (int): Le nombre d'itérations.
+        kernel_shape (Shape): La forme du noyau.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     return dilate(
         erode(src, kernel_size, iterations=iterations, kernel_shape=kernel_shape),
@@ -296,16 +294,16 @@ def closing(
     src, kernel_size: int, *, iterations: int = 1, kernel_shape: Shape = Shape.RECT
 ):
     """
-    Apply closing to the source image.
+    Applique une opération de fermeture à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel_size (int): The kernel size.
-        iterations (int): The number of iterations.
-        kernel_shape (Shape): The kernel shape.
+        src (numpy.ndarray): L'image source.
+        kernel_size (int): La taille du noyau.
+        iterations (int): Le nombre d'itérations.
+        kernel_shape (Shape): La forme du noyau.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     return erode(
         dilate(src, kernel_size, iterations=iterations, kernel_shape=kernel_shape),

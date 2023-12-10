@@ -34,6 +34,10 @@ from multiprocessing import Process
 
 
 class ImageFilterApp(QWidget):
+    """
+    The main window of the application.
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -59,7 +63,6 @@ class ImageFilterApp(QWidget):
     def init_ui(self):
         self.image_label = QLabel(self)
         self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # Align image in the center
         self.image_label.setAlignment(Qt.AlignCenter)
         self.image_label.setPixmap(QPixmap("data/placeholder.jpg"))
 
@@ -88,7 +91,6 @@ class ImageFilterApp(QWidget):
         self.invisibility_cloak = QPushButton("Invisibility Cloak", self)
         self.invisibility_cloak.clicked.connect(self.apply_invisibility_cloak)
 
-        # Adding labels
         upload_label = QLabel("Upload Image:", self)
         filter_label = QLabel("Select Filter:", self)
         realtime_label = QLabel("Detection Features:", self)
@@ -110,17 +112,14 @@ class ImageFilterApp(QWidget):
         rt_features.addWidget(self.detect_object_button)
         vbox.addLayout(rt_features)
 
-        # Add stretch factor to the image_label
         vbox.addWidget(self.image_label, 1)
 
-        # Add spacer to push widgets to the top
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         vbox.addItem(spacer)
 
         self.setWindowTitle("Image Filter App")
         self.setGeometry(0, 0, 1000, 800)
 
-        # Center the window on the screen
         screen_geometry = QApplication.desktop().screenGeometry()
         x = (screen_geometry.width() - self.width()) // 2
         self.move(x, 20)
@@ -129,6 +128,10 @@ class ImageFilterApp(QWidget):
         self.show()
 
     def load_image(self):
+        """
+        Charge une image à partir du fichier sélectionné par l'utilisateur
+        et l'affiche dans l'interface graphique.
+        """
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(
             self, "Open Image File", "", "Images (*.png *.jpg *.bmp *.jfif)"
@@ -143,7 +146,11 @@ class ImageFilterApp(QWidget):
             self.original_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
 
     def show_filter_input_dialog(self):
-        # Check if an image is loaded
+        """
+        Affiche une boîte de dialogue permettant à l'utilisateur de
+        configurer les paramètres du filtre sélectionné avant de l'appliquer
+        à l'image d'origine.
+        """
         if self.original_image is None:
             self.show_error_message("Please upload an image before applying a filter.")
             return
@@ -152,7 +159,6 @@ class ImageFilterApp(QWidget):
         selected_filter = self.filters[selected_filter_index]
         test_image = self.original_image
 
-        # apply threshold to image if selected filter is opening or closing or erosion or dilation
         if selected_filter["name"] in [
             "Opening Filter",
             "Closing Filter",
@@ -161,7 +167,6 @@ class ImageFilterApp(QWidget):
         ]:
             test_image = tools.threshold(self.original_image, 127, 255)
 
-        # Show the input dialog only if the selected filter has arguments
         if selected_filter["arguments"]:
             input_dialog = FilterInputDialog(selected_filter["arguments"], self)
             result = input_dialog.exec_()
@@ -177,12 +182,13 @@ class ImageFilterApp(QWidget):
                 return
 
         else:
-            # Apply the selected filter to the original image without arguments
             result_image = selected_filter["function"](test_image)
-        # Display the result image
         self.display_image(result_image)
 
     def show_error_message(self, message):
+        """
+        Affiche une boîte de dialogue d'erreur avec le message spécifié.
+        """
         error_dialog = QMessageBox(self)
         error_dialog.setIcon(QMessageBox.Critical)
         error_dialog.setWindowTitle("Error")
@@ -190,7 +196,10 @@ class ImageFilterApp(QWidget):
         error_dialog.exec_()
 
     def display_image(self, image_data):
-        # Convert the image data to a format that can be displayed with QPixmap
+        """
+        Affiche une image dans l'interface graphique à partir des données
+        de l'image spécifiées.
+        """
         height, width = image_data.shape
         bytes_per_line = width
         image = QImage(
@@ -201,7 +210,11 @@ class ImageFilterApp(QWidget):
         self.image_label.setScaledContents(True)
 
     def display_image_color(self, image_data):
-        # Convert the image data to a format that can be displayed with QPixmap
+        """
+        Affiche une image couleur dans l'interface graphique à partir des
+        données de l'image spécifiées.
+        """
+
         height, width, _ = image_data.shape
         bytes_per_line = width * 3
         image = QImage(image_data, width, height, bytes_per_line, QImage.Format_BGR888)
@@ -210,6 +223,10 @@ class ImageFilterApp(QWidget):
         self.image_label.setScaledContents(True)
 
     def apply_invisibility_cloak(self):
+        """
+        Applique l'effet de la cape d'invisibilité à l'image en temps réel
+        en utilisant un thread dédié.
+        """
         if self.detection_feature_running:
             self.show_error_message(
                 "Cannot start Invisibility Cloak while another feature is running."
@@ -228,6 +245,10 @@ class ImageFilterApp(QWidget):
         self.invisibility_cloak_thread.start()
 
     def apply_green_screen_real_time(self):
+        """
+        Applique l'effet d'écran vert à l'image en temps réel en utilisant
+        un thread dédié.
+        """
         if self.detection_feature_running:
             self.show_error_message(
                 "Cannot start Green Screen while another feature is running."
@@ -244,6 +265,10 @@ class ImageFilterApp(QWidget):
         self.green_screen_thread.start()
 
     def apply_object_detection(self):
+        """
+        Lance un thread dédié pour effectuer la détection d'objets dans
+        l'image en temps réel.
+        """
         if self.detection_feature_running:
             self.show_error_message(
                 "Cannot start Object Detection while another feature is running."
@@ -258,12 +283,20 @@ class ImageFilterApp(QWidget):
         self.object_detection_thread.start()
 
     def on_detection_feature_finished(self):
+        """
+        Méthode appelée lorsque la fonctionnalité de détection actuelle est
+        terminée. Réinitialise l'état de détection.
+        """
         self.detection_feature_running = False
         QMessageBox.information(
             self, "Detection Feature Finished", "The detection feature has finished!"
         )
 
     def detect_objects_by_color(self):
+        """
+        Effectue la détection d'objets dans l'image en fonction des couleurs
+        spécifiées.
+        """
         if self.original_image_path is None:
             self.show_error_message("Please upload an image before detecting...")
             return
@@ -275,6 +308,10 @@ class ImageFilterApp(QWidget):
         self.display_image_color(detected_img)
 
     def start_game_thread(self):
+        """
+        Lance un dialogue pour permettre à l'utilisateur de choisir s'il
+        souhaite utiliser la caméra pour jouer à un jeu.
+        """
         if self.game_thread is not None and self.game_thread.isRunning():
             self.show_error_message("Wait for the current thread to end!")
             return
@@ -285,7 +322,6 @@ class ImageFilterApp(QWidget):
             )
             return
 
-        # Create a dialog to ask the user whether to use the camera
         dialog = QDialog(self)
         dialog.setWindowTitle("Game Options")
 
@@ -299,7 +335,6 @@ class ImageFilterApp(QWidget):
         layout.addWidget(no_button)
         dialog.setLayout(layout)
 
-        # Connect buttons to corresponding slots
         yes_button.clicked.connect(lambda: self.start_game(True, dialog))
         no_button.clicked.connect(lambda: self.start_game(False, dialog))
 
@@ -307,6 +342,10 @@ class ImageFilterApp(QWidget):
         dialog.exec_()
 
     def start_game(self, use_camera, dialog):
+        """
+        Démarre le thread du jeu en fonction de la décision de l'utilisateur
+        de l'utiliser avec ou sans la caméra.
+        """
         dialog.accept()  # Close the dialog
         self.detection_feature_running = True
 
@@ -320,6 +359,10 @@ class ImageFilterApp(QWidget):
         self.game_thread.start()
 
     def on_game_finished(self):
+        """
+        Méthode appelée lorsque le jeu est terminé. Affiche une boîte de
+        dialogue informant que le jeu est terminé.
+        """
         QMessageBox.information(self, "Game Finished", "The game has finished!")
         self.game_thread.quit()
         self.game_thread = None

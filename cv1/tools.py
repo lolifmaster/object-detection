@@ -12,16 +12,16 @@ from typing import Sequence
 
 def pad(src, pad_width, mode="constant", constant_values=0):
     """
-    Pad an image.
+    Rembourre une image.
 
     Args:
-        src (numpy.ndarray): The source image.
-        pad_width (Sequence[Sequence[int]]): The padding width.
-        mode (str): The padding mode. Can be 'constant', 'edge'.
-        constant_values (int): The constant value to use if mode='constant'.
+        src (numpy.ndarray): L'image source.
+        pad_width (Sequence[Sequence[int]]): La largeur de remplissage.
+        mode (str): Le mode de remplissage. Peut être 'constant' ou 'edge'.
+        constant_values (int): La valeur constante à utiliser si mode='constant'.
 
     Returns:
-        numpy.ndarray: The padded image.
+        numpy.ndarray: L'image rembourrée.
     """
     if not isinstance(pad_width, Sequence):
         raise ValueError("pad_width should be an Sequence")
@@ -76,15 +76,15 @@ def pad(src, pad_width, mode="constant", constant_values=0):
 
 def clip_array(array, min_value, max_value):
     """
-    Clip the value between min_value and max_value.
+    Coupe les valeurs entre min_value et max_value.
 
     Args:
-        array (np.array): The array.
-        min_value (float): The minimum value.
-        max_value (float): The maximum value.
+        array (np.array): Le tableau.
+        min_value (float): La valeur minimale.
+        max_value (float): La valeur maximale.
 
     Returns:
-        float: The clipped value.
+        float: La valeur coupée.
     """
     for i in range(array.shape[0]):
         for j in range(array.shape[1]):
@@ -100,18 +100,18 @@ def filter_2d(
     src, kernel, mode="edge", constant_values=0, clip=True, *, dtype=np.uint8
 ):
     """
-    Apply a 2D filter to the source image.
+    Applique un filtre 2D à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        kernel (numpy.ndarray): The filter kernel.
-        mode (str): The padding mode. Can be 'constant', 'edge'.
-        constant_values (int): The constant value to use if mode='constant'.
-        clip (bool): Whether to clip the output image to [0, 255].
-        dtype (type): The data type of the output image.
+        src (numpy.ndarray): L'image source.
+        kernel (numpy.ndarray): Le noyau du filtre.
+        mode (str): Le mode de remplissage. Peut être 'constant' ou 'edge'.
+        constant_values (int): La valeur constante à utiliser si mode='constant'.
+        clip (bool): Si la sortie doit être coupée à [0, 255].
+        dtype (type): Le type de données de l'image de sortie.
 
     Returns:
-        numpy.ndarray: The filtered image.
+        numpy.ndarray: L'image filtrée.
     """
     if not isinstance(kernel, np.ndarray):
         raise ValueError("kernel should be a numpy array")
@@ -155,13 +155,13 @@ def filter_2d(
 
 def bgr2hsv(src):
     """
-    Convert a BGR image to HSV.
+    Convertit une image BGR en HSV.
 
     Args:
-        src (numpy.ndarray): The source image.
+        src (numpy.ndarray): L'image source.
 
     Returns:
-        numpy.ndarray: The HSV image.
+        numpy.ndarray: L'image HSV.
     """
     if not isinstance(src, np.ndarray):
         raise ValueError("src should be a numpy array")
@@ -207,14 +207,14 @@ def bgr2hsv(src):
 
 def create_shape(shape_type: Shape, size: int):
     """
-    Create a shape.
+    Crée une forme.
 
     Args:
-        shape_type (Shape): The shape type.
-        size (int): The size of the shape.
+        shape_type (Shape): Le type de forme.
+        size (int): La taille de la forme.
 
     Returns:
-        numpy.ndarray: The shape.
+        numpy.ndarray: La forme.
     """
 
     match shape_type:
@@ -264,12 +264,14 @@ def create_shape(shape_type: Shape, size: int):
 
 def bitwise_and(src: np.array, mask):
     """
-    Perform bitwise AND operation on the input image with a mask.
-    :param src:
-    :param mask:
-    :return:
+    Effectue l'opération logique ET sur l'image d'entrée avec un masque.
 
+    Args:
+        src: L'image source.
+        mask: Le masque.
 
+    Returns:
+        numpy.ndarray: L'image résultante.
     """
     if not isinstance(src, np.ndarray):
         raise ValueError("src should be a numpy array")
@@ -282,15 +284,15 @@ def bitwise_and(src: np.array, mask):
 
 def in_range(src: np.array, lower_bound, upper_bound):
     """
-    Check if the pixels in the source image are within the specified range.
+    Vérifie si les pixels de l'image source sont dans la plage spécifiée.
 
     Args:
-        src (numpy.ndarray): The source image.
-        lower_bound (Sequence[int]): The lower bound.
-        upper_bound (Sequence[int]): The upper bound.
+        src (numpy.ndarray): L'image source.
+        lower_bound (Sequence[int]): La borne inférieure.
+        upper_bound (Sequence[int]): La borne supérieure.
 
     Returns:
-        numpy.ndarray: The mask.
+        numpy.ndarray: Le masque.
     """
     if not isinstance(src, np.ndarray):
         raise ValueError("src should be a numpy array")
@@ -320,15 +322,15 @@ def in_range(src: np.array, lower_bound, upper_bound):
 
 def threshold(src: np.array, threshold_value: int, max_value: int):
     """
-    Apply thresholding to the source image.
+    Applique un seuillage à l'image source.
 
     Args:
-        src (numpy.ndarray): The source image.
-        threshold_value (int): The threshold value.
-        max_value (int): The maximum value.
+        src (numpy.ndarray): L'image source.
+        threshold_value (int): La valeur de seuil.
+        max_value (int): La valeur maximale.
 
     Returns:
-        numpy.ndarray: The threshold image.
+        numpy.ndarray: L'image seuillée.
     """
     if not isinstance(src, np.ndarray):
         raise ValueError("src should be a numpy array")
@@ -347,13 +349,13 @@ def threshold(src: np.array, threshold_value: int, max_value: int):
 
 def bitwise_not(image: np.array):
     """
-    Perform bitwise NOT operation on the input image.
+    Effectue l'opération logique NON sur l'image d'entrée.
 
     Args:
-        image (numpy.ndarray): The input image.
+        image (numpy.ndarray): L'image d'entrée.
 
     Returns:
-        numpy.ndarray: The result of the bitwise NOT operation.
+        numpy.ndarray: Le résultat de l'opération logique NON.
     """
     if not isinstance(image, np.ndarray):
         raise ValueError("image should be a numpy array")
@@ -366,17 +368,17 @@ def bitwise_not(image: np.array):
 
 def add_weighted(img1, alpha, img2, beta, gamma):
     """
-    Perform weighted sum of two images.
+    Effectue la somme pondérée de deux images.
 
     Args:
-        img1 (numpy.ndarray): The first input image.
-        alpha (float): Weight for the first image.
-        img2 (numpy.ndarray): The second input image.
-        beta (float): Weight for the second image.
-        gamma (float): Scalar added to each sum.
+        img1 (numpy.ndarray): La première image d'entrée.
+        alpha (float): Poids pour la première image.
+        img2 (numpy.ndarray): La deuxième image d'entrée.
+        beta (float): Poids pour la deuxième image.
+        gamma (float): Scalaire ajouté à chaque somme.
 
     Returns:
-        numpy.ndarray: The result of the weighted sum.
+        numpy.ndarray: Le résultat de la somme pondérée.
     """
     if not isinstance(img1, np.ndarray):
         raise ValueError("img1 should be a numpy array")

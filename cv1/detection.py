@@ -3,24 +3,24 @@ import numpy as np
 
 def dfs(x, y, image, visited, contours):
     """
-    Performs a dfs search on the image starting from the specified coordinates.
+    Effectue une recherche DFS sur l'image à partir des coordonnées spécifiées.
     """
     stack = [(x, y)]
 
     while stack:
         x, y = stack.pop()
 
-        # check if the current pixel is already visited or if it is not white
+        # vérifier si le pixel actuel a déjà été visité ou s'il n'est pas blanc
         if (x, y) in visited or not (
             0 <= x < image.shape[1] and 0 <= y < image.shape[0] and image[y, x] == 255
         ):
             continue
 
-        # mark the current pixel as visited and add it to the current contour
+        # marquer le pixel actuel comme visité et l'ajouter au contour actuel
         visited.add((x, y))
         contours[-1].append((x, y))
 
-        # add the neighbors of the current pixel to the stack
+        # ajouter les voisins du pixel actuel à la pile
         for dx in range(-1, 2):
             for dy in range(-1, 2):
                 stack.append((x + dx, y + dy))
@@ -28,14 +28,14 @@ def dfs(x, y, image, visited, contours):
 
 def find_contours(image, min_contour_area=1000):
     """
-    find all the connected pixels in the image and return them as a list of contours
+    Trouve tous les pixels connectés dans l'image et les retourne sous forme de liste de contours.
     """
     contours = []
     visited = set()
 
     for y in range(image.shape[0]):
         for x in range(image.shape[1]):
-            # check the current pixel is not visited and it is white
+            # vérifier que le pixel actuel n'a pas été visité et qu'il est blanc
             if (x, y) not in visited and image[y, x] == 255:
                 contours.append([])
                 dfs(x, y, image, visited, contours)
@@ -45,7 +45,7 @@ def find_contours(image, min_contour_area=1000):
 
 def calculate_center(contours):
     if not contours:
-        return None  # No contours found
+        return None  # Aucun contour trouvé
 
     upper_x, upper_y, lower_x, lower_y = contours
 
@@ -57,27 +57,25 @@ def calculate_center(contours):
 
 def in_range_detect(image, lower_bound, upper_bound):
     """
-    performs a color detection in the specified range and returns a mask
-    and the upper and lower coordinates of the detected object
+    Effectue une détection de couleur dans la plage spécifiée et retourne un masque
+    et les coordonnées supérieures et inférieures de l'objet détecté.
 
+    :param image: l'image à traiter
+    :param lower_bound: la limite inférieure pour la détection de couleur
+    :param upper_bound: la limite supérieure pour la détection de couleur
 
-       :param image: the image to be processed
-       :param lower_bound: the lower bound for the color detection
-       :param upper_bound: the upper bound for the color detection
-
-       :return: a mask with the detected object and the upper and lower coordinates of the detected object
-
+    :return: un masque avec l'objet détecté et les coordonnées supérieures et inférieures de l'objet détecté
     """
     if len(image.shape) == 2:
-        raise ValueError("Input image must be in HSV format (3 dimensions)")
+        raise ValueError("L'image d'entrée doit être au format HSV (3 dimensions)")
 
-    # Get the height and width of the image
+    # Obtenir la hauteur et la largeur de l'image
     height, width, _ = image.shape
 
-    # Initialize an output mask with zeros
+    # Initialiser un masque de sortie avec des zéros
     mask = np.zeros((height, width), dtype=np.uint8)
 
-    # Extract lower and upper bounds for each channel
+    # Extraire les limites inférieure et supérieure pour chaque canal
     lower_bound_b, lower_bound_g, lower_bound_r = lower_bound
     upper_bound_b, upper_bound_g, upper_bound_r = upper_bound
 
@@ -87,18 +85,18 @@ def in_range_detect(image, lower_bound, upper_bound):
     lower_y = height
     for y in range(height):
         for x in range(width):
-            # Extract the HSV values for the current pixel
+            # Extraire les valeurs HSV du pixel actuel
             h, s, v = image[y, x]
 
-            # Check if the pixel values are within the specified range for each channel
+            # Vérifier si les valeurs du pixel sont dans la plage spécifiée pour chaque canal
             if (
                 lower_bound_b <= h <= upper_bound_b
                 and lower_bound_g <= s <= upper_bound_g
                 and lower_bound_r <= v <= upper_bound_r
             ):
-                mask[y, x] = 255  # Set to 255 if within range
+                mask[y, x] = 255  # Mettre à 255 s'il est dans la plage
 
-                # update the upper and lower coordinates
+                # mettre à jour les coordonnées supérieures et inférieures
                 if x > upper_x:
                     upper_x = x
                 if y > upper_y:
@@ -108,7 +106,7 @@ def in_range_detect(image, lower_bound, upper_bound):
                 if y < lower_y:
                     lower_y = y
 
-    # get the upper and lower coordinates
+    # obtenir les coordonnées supérieures et inférieures
     if upper_x == 0 and upper_y == 0 and lower_x == width and lower_y == height:
         return mask, None
 
