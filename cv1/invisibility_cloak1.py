@@ -3,19 +3,19 @@ import numpy as np
 from cv1 import tools, detection
 
 
-def invisibility_cloak(*, seuil_rouge_inf, seuil_rouge_sup, image_fond=None):
+def invisibility_cloak(*, lower_red, upper_red, background_img=None):
     """
     Applique l'effet de manteau d'invisibilité en utilisant la détection de couleur.
 
     Args:
-        seuil_rouge_inf (List[int]): Seuil inférieur de la plage de couleur rouge en format HSV.
-        seuil_rouge_sup (List[int]): Seuil supérieur de la plage de couleur rouge en format HSV.
-        image_fond (Optional[str]): Chemin vers l'image de fond. Si non spécifié, utilise la webcam.
+        lower_red (List[int]): Seuil inférieur de la plage de couleur rouge en format HSV.
+        upper_red (List[int]): Seuil supérieur de la plage de couleur rouge en format HSV.
+        background_img (Optional[str]): Chemin vers l'image de fond. Si non spécifié, utilise la webcam.
     """
-    if not seuil_rouge_inf:
-        seuil_rouge_inf = np.array([0, 120, 70])
-    if not seuil_rouge_sup:
-        seuil_rouge_sup = np.array([10, 255, 255])
+    if not lower_red:
+        lower_red = np.array([0, 120, 70])
+    if not upper_red:
+        upper_red = np.array([10, 255, 255])
 
     # Initialiser la webcam
     cap = cv2.VideoCapture(0)
@@ -23,9 +23,9 @@ def invisibility_cloak(*, seuil_rouge_inf, seuil_rouge_sup, image_fond=None):
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
     # Capturer l'image de fond
-    if image_fond is not None:
-        image_fond = cv2.imread(image_fond)
-        background = cv2.resize(image_fond, (320, 240))
+    if background_img is not None:
+        background_img = cv2.imread(background_img)
+        background = cv2.resize(background_img, (320, 240))
     else:
         _, background = cap.read()
         cv2.flip(background, 1, background)
@@ -37,7 +37,7 @@ def invisibility_cloak(*, seuil_rouge_inf, seuil_rouge_sup, image_fond=None):
         # Convertir l'image de l'espace couleur BGR à HSV
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         masque_couleur, contour = detection.in_range_detect(
-            hsv_frame, seuil_rouge_inf, seuil_rouge_sup
+            hsv_frame, lower_red, upper_red
         )
 
         if contour:
